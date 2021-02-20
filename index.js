@@ -52,7 +52,7 @@ const ngonsol = JSON.parse(fs.readFileSync('./settings/Ramlan.json'))
 const {
     botName,
     ownerName,
-    XteamKey
+    XteamKey,
     ownerNumber,
     botPrefix,
     GrupLimitz,
