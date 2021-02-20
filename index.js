@@ -760,7 +760,7 @@ switch(command) {
 				if (isLimit(sender)) return reply(nad.limitend(pusname))				
 				if (args.length < 1) return reply(nad.wrongf())
 				ligh = body.slice(11)
-				if (ween.length > 10) return reply('Teksnya kepanjangan, maksimal 9 karakter')
+				if (ligh.length > 10) return reply('Teksnya kepanjangan, maksimal 9 karakter')
 				reply(nad.wait())
 				lawak = await getBuffer(`https://api.zeks.xyz/api/tlight?text=${ligh}&apikey=apivinz`)
 		    baby.sendMessage(from, lawak, image, {quoted: mek})
