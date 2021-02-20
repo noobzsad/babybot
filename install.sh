@@ -7,6 +7,8 @@ pkg install ffmpeg
 pkg install nodejs
 pkg install npm
 pkg install tesseract
+npm i node-fetch
+npm i base64-img
 npm i -g cwebp
 npm i -g ytdl
 npm i node-tesseract-ocr

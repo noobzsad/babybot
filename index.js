@@ -24,6 +24,8 @@ const moment = require("moment-timezone")
 const fs = require("fs") 
 const crypto = require('crypto')
 const imageToBase64 = require('image-to-base64')
+const base64Img = require('base64-img')
+const fetch = require('node-fetch')
 const axios = require('axios')
 const { color, bgcolor } = require('./lib/color')
 const { donasi } = require('./lib/donasi')
@@ -38,7 +40,7 @@ const brainly = require('brainly-scraper')
 const ffmpeg = require('fluent-ffmpeg')
 const cd = 4.32e+7
 const { removeBackgroundFromImageFile } = require('remove.bg')
-const { ind } = require('./language')
+const { nad } = require('./language')
 const vcard = 'BEGIN:VCARD\n'
             + 'VERSION:3.0\n'
             + 'FN:RAMLAN ID\n' // GANTI NAMA LU
@@ -50,10 +52,7 @@ const ngonsol = JSON.parse(fs.readFileSync('./settings/Ramlan.json'))
 const {
     botName,
     ownerName,
-    BarBarKey,
-    XteamKey,
-    VhtearKey,
-    TobzKey,
+    XteamKey
     ownerNumber,
     botPrefix,
     GrupLimitz,
@@ -421,7 +420,7 @@ baby.on('group-participants-update', async (anu) => {
                 if (requiredXp <= getLevelingXp(sender)) {
                     addLevelingLevel(sender, 1)
                     bayarLimit(sender, 3)
-                    await reply(ind.levelup(pushname, sender, getLevelingXp,  getLevel, getLevelingLevel))
+                    await reply(nad.levelup(pushname, sender, getLevelingXp,  getLevel, getLevelingLevel))
                 }
             } catch (err) {
                 console.error(err)
@@ -436,7 +435,7 @@ baby.on('group-participants-update', async (anu) => {
                         if (lmt.id === sender) {
                             let limitCounts = limitawal - lmt.limit
                             if (limitCounts <= 0) return baby.sendMessage(from,`Limit anda sudah habis\n\n_Note : limit bisa di dapatkan dengan cara ${prefix}buylimit dan naik level_`, text,{ quoted: mek})
-                            baby.sendMessage(from, ind.limitcount(limitCounts), text, { quoted : mek})
+                            baby.sendMessage(from, nad.limitcount(limitCounts), text, { quoted : mek})
                             found = true
                         }
                     }
@@ -444,7 +443,7 @@ baby.on('group-participants-update', async (anu) => {
                         let obj = { id: sender, limit: 0 }
                         _limit.push(obj)
                         fs.writeFileSync('./database/user/limit.json', JSON.stringify(_limit))
-                        baby.sendMessage(from, ind.limitcount(limitCounts), text, { quoted : mek})
+                        baby.sendMessage(from, nad.limitcount(limitCounts), text, { quoted : mek})
                     }
 				}
 				
@@ -458,7 +457,7 @@ baby.on('group-participants-update', async (anu) => {
               	let limits = i.limit
               if (limits >= limitawal ) {
               	  position = true
-                    baby.sendMessage(from, ind.limitend(pushname), text, {quoted: mek})
+                    baby.sendMessage(from, nad.limitend(pushname), text, {quoted: mek})
                     return true
               } else {
               	_limit
@@ -506,7 +505,7 @@ baby.on('group-participants-update', async (anu) => {
 		        baby.updatePresence(from, Presence.composing)
 		        if (mesejAnti.includes("#izinbos")) return reply("Iya kak jangan spam ya")
 		        var kic = `${sender.split("@")[0]}@s.whatsapp.net`
-		        reply(`Woyy ${sender.split("@")[0]} Grup ini anti link, siap siap kau!`)
+		        reply(`Woyy ${sender.split("@")[0]} Gak Boleh Share Link Group😡`)
 		        setTimeout( () => {
 			        baby.groupRemove(from, [kic]).catch((e)=>{reply(`BOT HARUS JADI ADMIN`)})
 		        }, 3000)
@@ -537,8 +536,8 @@ baby.on('group-participants-update', async (anu) => {
 switch(command) {
                 case 'help':
 				case 'menu':
-				if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
+				if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
 				    const reqXp  = 5000 * (Math.pow(2, getLevelingLevel(sender)) - 1)
 				    const uangku = checkATMuser(sender)
 					await costum(help(pushname, prefix, botName, ownerName, reqXp, getLevelingLevel, sender, _registered, uangku), text, tescuk, cr)
@@ -548,64 +547,65 @@ switch(command) {
 					baby.sendMessage(from, donasi(pushname, prefix, botName, ownerName), text)
 					break
 				case 'bingungcok':
-				if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())				
+				if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())				
 					baby.sendMessage(from, cara(pushname, prefix, botName, ownerName), text)
 					break										
                 case 'simplemenu':
 				case 'simpelmenu':
-				if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())			
+				if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())			
 					await costum(simple(pushname, prefix, botName, ownerName, getLevelingLevel, sender, _registered), text, tescuk, cr)
 					break
                 case 'gabutmenu':
-                if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())			
+                if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())			
 					await costum(gabut(pushname, prefix, botName, ownerName, getLevelingLevel, sender, _registered), text, tescuk, cr)
 					break
                 case 'groupmenu':
-                if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (!isGroup) return reply(ind.groupo())			
+                if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (!isGroup) return reply(nad.groupo())			
 					await costum(groupm(pushname, prefix, botName, ownerName, getLevelingLevel, sender, _registered), text, tescuk, cr)
 					break
                 case 'downloadmenu':
-                if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())			
+                if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())			
 					await costum(download(pushname, prefix, botName, ownerName, getLevelingLevel, sender, _registered), text, tescuk, cr)
 					break
                 case 'dompetmenu':
-                if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())			
+                if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())			
 					await costum(dompet(pushname, prefix, botName, ownerName, getLevelingLevel, sender, _registered), text, tescuk, cr)
 					break
                 case 'randommenu':
-                if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())			
+                if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())			
 					await costum(random(pushname, prefix, botName, ownerName, getLevelingLevel, sender, _registered), text, tescuk, cr)
 					break
                 case 'makermenu':
-                if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())			
+                if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())			
 					await costum(maker(pushname, prefix, botName, ownerName, getLevelingLevel, sender, _registered), text, tescuk, cr)
 					break
                 case 'othermenu':
-                if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())					
+                if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())					
 					await costum(other(pushname, prefix, botName, ownerName, getLevelingLevel, sender, _registered), text, tescuk, cr)
 					break
                 case 'soundmenu':
-                if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())					
+                if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())					
 					await costum(sound(pushname, prefix, botName, ownerName, getLevelingLevel, sender, _registered), text, tescuk, cr)
 					break
                 case 'premiummenu':
-                if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())					
+                if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())					
 					await costum(vip(pushname, prefix, botName, ownerName, getLevelingLevel, sender, _registered), text, tescuk, cr)
 					break																			
                 case 'ownermenu':
-                if (isBanned) return reply(ind.baned())					
+                if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())                				
 					await costum(owb(pushname, prefix, botName, ownerName, getLevelingLevel, sender, _registered), text, tescuk, cr)
 					break										
 /*
@@ -614,9 +614,9 @@ switch(command) {
 				case 'stiker': 
 				case 'sticker':
 				case 's':
-				if (isBanned) return reply(ind.baned())
-				    if (!isRegistered) return reply(ind.noregis())
-				    if (isLimit(sender)) return reply(ind.limitend(pusname))
+				if (isBanned) return reply(nad.baned())
+				    if (!isRegistered) return reply(nad.noregis())
+				    if (isLimit(sender)) return reply(nad.limitend(pusname))
                     await limitAdd(sender)
 					if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 						const encmedia = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
@@ -630,7 +630,7 @@ switch(command) {
 							.on('error', function (err) {
 								console.log(`Error : ${err}`)
 								fs.unlinkSync(media)
-								reply(ind.stikga())
+								reply(nad.stikga())
 							})
 							.on('end', function () {
 								console.log('Finish')
@@ -646,7 +646,7 @@ switch(command) {
 						const encmedia = isQuotedVideo ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
 						const media = await baby.downloadAndSaveMediaMessage(encmedia)
 						ran = getRandom('.webp')
-						reply(ind.wait())
+						reply(nad.wait())
 						await ffmpeg(`./${media}`)
 							.inputFormat(media.split('.')[1])
 							.on('start', function (cmd) {
@@ -656,7 +656,7 @@ switch(command) {
 								console.log(`Error : ${err}`)
 								fs.unlinkSync(media)
 								tipe = media.endsWith('.mp4') ? 'video' : 'gif'
-								reply(ind.stikga())
+								reply(nad.stikga())
 							})
 							.on('end', function () {
 								console.log('Finish')
@@ -672,11 +672,22 @@ switch(command) {
 						reply(`Kirim gambar/video/gif dengan caption \n${prefix}sticker (durasi sticker video 1-9 detik)`)
 					}
 					break
+				case 'nulis':
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
+				if (args.length < 1) return reply(`Teksnya mana kak? Contoh : ${prefix}nulis Ramlan baik hati`)
+				nul = body.slice(7)
+				reply('「❗」WAIT BRO GUE NULIS DUMLU YAKAN')
+				tak = await getBuffer(`https://api.zeks.xyz/api/nulis?text=${nul}&apikey=apivinz`)
+				baby.sendMessage(from, tak, image, {quoted: mek, caption: 'Lebih baik nulis sendiri ya kak :*'})
+					await limitAdd(sender)				
+				break					
 				case 'nulis1':
 				case 'tulis1':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (!isPrem) return reply(ind.premium())
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (!isPrem) return reply(nad.premium())
 				if (args.length < 1) return reply(`Teksnya mana kak? Contoh : ${prefix}nulis1 Ramlan baik hati`)
 				ramlan = body.slice(8)
 				reply('「❗」WAIT BRO GUE NULIS DUMLU YAKAN')
@@ -685,114 +696,103 @@ switch(command) {
 				break
 				case 'nulis2':
 				case 'tulis2':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (!isPrem) return reply(ind.premium())
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (!isPrem) return reply(nad.premium())
 				if (args.length < 1) return reply(`Teksnya mana kak? Contoh : ${prefix}nulis2 Ramlan baik hati`)
 				laysha = body.slice(8)
 				reply('「❗」WAIT BRO GUE NULIS DUMLU YAKAN')
 				buff = await getBuffer(`https://api.xteam.xyz/magernulis3?text=${laysha}&APIKEY=${XteamKey}`)
 				baby.sendMessage(from, buff, image, {quoted: mek, caption: 'Lebih baik nulis sendiri ya kak :*'})
-				break
-				case 'nulis':
-				case 'tulis':
-					if (args.length < 1) return reply('Yang mau di tulis titit kah?')
-				if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (isLimit(sender)) return reply(ind.limitend(pusname))
-					teks = body.slice(7)
-					reply('「❗」WAIT BRO GUE NULIS DUMLU YAKAN')
-					buff = await getBuffer(`https://api.vhtear.com/write?text=${teks}&apikey=${VhtearKey}`)
-					baby.sendMessage(from, buff, image, {quoted: mek})
-                                        await limitAdd(sender)
-					break													
+				break												
 				case 'quotes':
-				if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (isLimit(sender)) return reply(ind.limitend(pusname))
-				quotes = body.slice(1)
-				const quo =['Lebih baik mengerti sedikit daripada salah mengerti.','Hampir semua pria memang mampu bertahan menghadapi kesulitan. Namun, jika Anda ingin menguji karakter sejati pria, beri dia kekuasaan.','Bila tekad seseorang kuat dan teguh, Tuhan akan bergabung dalam usahanya.','Penderitaan adalah pelajaran.','Ilmu pengetahuan tanpa agama adalah pincang.','Hidup itu seperti sebuah sepeda, agar tetap seimbang kita harus tetap bergerak.','Perbedaan masa lalu, sekarang, dan masa depan tak lebih dari ilusi yang keras kepala.','Sebuah meja, sebuah kursi, semangkuk buah, dan sebuah biola; apa lagi yang dibutuhkan agar seseorang bisa merasa bahagia?','Belas kasihanlah terhadap sesama, bersikap keraslah terhadap diri sendiri.','Cara paling baik untuk menggerakkan diri Anda ialah memberi tugas kepada diri sendiri.','Kita tidak boleh kehilangan semangat. Semangat adalah stimulan terkuat untuk mencintai, berkreasi dan berkeinginan untuk hidup lebih lama.','Manusia akan bahagia selama ia memilih untuk bahagia.','Saya tidak berharap menjadi segalanya bagi setiap orang. Saya hanya ingin menjadi sesuatu untuk seseorang.','Apabila sempurna akal seseorang, maka sedikit perkataannya.','Bahagialah orang yang dapat menjadi tuan untuk dirinya, menjadi kusir untuk nafsunya dan menjadi kapten untuk bahtera hidupnya.','Sahabat yang jujur lebih besar harganya daripada harta benda yang diwarisi dari nenek moyang.','Yang paling melelahkan dalam hidup adalah menjadi orang yang tidak tulus.','Terbuka untuk Anda, begitulah Tuhan memberi kita jalan untuk berusaha. Jangan pernah berfikir jalan sudah tertutup.','Penundaan adalah kuburan dimana peluang dikuburkan.','Cinta bukan saling menatap mata, namun melihat ke arah yang sama bersama-sama.','Kita adalah apa yang kita kerjakan berulang kali. Dengan demikian, kecemerlangan bukan tindakan, tetapi kebiasaan.','Jangan pernah mencoba menjadikan putra atau putri Anda menjadi seperti Anda. Diri Anda hanya cukup satu saja.','Jika Anda bisa membuat orang lain tertawa, maka Anda akan mendapatkan semua cinta yang Anda inginkan.','Masalah akan datang cepat atau lambat. Jika masalah datang, sambut dengan sebaik mungkin. Semakin ramah Anda menyapanya, semakin cepat ia pergi.','Kita tak bisa melakukan apapun untuk mengubah masa lalu. Tapi apapun yang kita lakukan bisa mengubah masa depan.','Kesabaran adalah teman dari kebijaksanaan.','Orang-orang kreatif termotivasi oleh keinginan untuk maju, bukan oleh keinginan untuk mengalahkan orang lain.','Dimanapun engkau berada selalulah menjadi yang terbaik dan berikan yang terbaik dari yang bisa kita berikan.','Kebencian seperti halnya cinta, berkobar karena hal-hal kecil.','Anda tidak perlu harus berhasil pada kali pertama.','Satu jam yang intensif, jauh lebih baik dan menguntungkan daripada bertahun-tahun bermimpi dan merenung-renung.','Hal terbaik yang bisa Anda lakukan untuk orang lain bukanlah membagikan kekayaan Anda, tetapi membantu dia untuk memiliki kekayaannya sendiri.','Tidak ada jaminan keberhasilan, tetapi tidak berusaha adalah jaminan kegagalan.','Aku tidak tahu kunci sukses itu apa, tapi kunci menuju kegagalan adalah mencoba membuat semua orang senang.']
-				const tes = quo[Math.floor(Math.random() * quo.length)]
-				baby.sendMessage(from, ''+tes+'\n\n_By : ⸸Ramlan⸸Panutanque._', text, { quoted: mek })
-				await limitAdd(sender)
-				break				
+				baby.updatePresence(from, Presence.composing) 
+                if (isBanned) return reply(nad.baned())
+                if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
+				 data = fs.readFileSync('./src/quote.json');
+                 jsonData = JSON.parse(data);
+                 randIndex = Math.floor(Math.random() * jsonData.length);
+                 randKey = jsonData[randIndex];
+                 randQuote =''+randKey.quote+ '\n\n_By: '+randKey.by+'_'
+                 baby.sendMessage(from, randQuote, text, {quoted: mek})
+				 await limitAdd(sender)
+				 break				
 				case 'ninjalogo':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (!isPrem) return reply(ind.premium())
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (!isPrem) return reply(nad.premium())
 				var gh = body.slice(11)
 				var nin = gh.split("&")[0];
 				var ja = gh.split("&")[1];
 				if (args.length < 1) return reply(`「❗」Contoh : ${prefix}ninjalogo Ramlan & Gans`)
-				reply(ind.wait())
+				reply(nad.wait())
 				buffer = await getBuffer(`https://api.xteam.xyz/textpro/ninjalogo?text=${nin}&text2=${ja}&APIKEY=${XteamKey}`)
 				baby.sendMessage(from, buffer, image, {quoted: mek})
-				await limitAdd(sender)
 				break				
 		case 'halloweentext':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (!isPrem) return reply(ind.premium())				
-				if (args.length < 1) return reply(ind.wrongf())
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (!isPrem) return reply(nad.premium())				
+				if (args.length < 1) return reply(nad.wrongf())
 				ween = body.slice(15)
 				if (ween.length > 10) return reply('Teksnya kepanjangan, maksimal 9 karakter')
-				reply(ind.wait())
+				reply(nad.wait())
 				buffer = await getBuffer(`https://api.xteam.xyz/textpro/helloweenfire?text=${ween}&APIKEY=${XteamKey}`)
 		    baby.sendMessage(from, buffer, image, {quoted: mek})
-		    await limitAdd(sender)	
 		    break
 				case 'pornhub':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (!isPrem) return reply(ind.premium())
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
 				var gh = body.slice(9)
 				var porn = gh.split("&")[0];
 				var hub = gh.split("&")[1];
 				if (args.length < 1) return reply(`「❗」Contoh : ${prefix}pornhub Ramlan & Hub`)
-				reply(ind.wait())
-				buffer = await getBuffer(`https://api.xteam.xyz/textpro/ph?text=${porn}&text2=${hub}&APIKEY=${XteamKey}`)
-				baby.sendMessage(from, buffer, image, {quoted: mek})
+				reply(nad.wait())
+				alan = await getBuffer(`https://vinz.zeks.xyz/api/pornhub?text1=${porn}&text2=${hub}`)
+				baby.sendMessage(from, alan, image, {quoted: mek})
 				await limitAdd(sender)
 				break
-                case 'gemboktext':
-				if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (isLimit(sender)) return reply(ind.limitend(pusname))
-					var gh = body.slice(12)
-					var gem = gh.split("&")[0];
-					var bok = gh.split("&")[1];
-					if (args.length < 1) return reply(`「❗」Contoh : ${prefix}gemboktext 11 01 2021 & Ramlan dan Nadia`)
-					reply(ind.wait())
-					buffer = await getBuffer(`https://api.vhtear.com/padlock?text1=${gem}&text2=${bok}&apikey=${VhtearKey}`)
-					baby.sendMessage(from, buffer, image, {quoted: mek})
-					await limitAdd(sender)
-					break
+		case 'textlight':
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))				
+				if (args.length < 1) return reply(nad.wrongf())
+				ligh = body.slice(11)
+				if (ween.length > 10) return reply('Teksnya kepanjangan, maksimal 9 karakter')
+				reply(nad.wait())
+				lawak = await getBuffer(`https://api.zeks.xyz/api/tlight?text=${ligh}&apikey=apivinz`)
+		    baby.sendMessage(from, lawak, image, {quoted: mek})
+		    await limitAdd(sender)
+		    break
                 case 'glitchtext':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (!isPrem) return reply(ind.premium())
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
 					var gh = body.slice(12)
 					var gli = gh.split("&")[0];
 					var tch = gh.split("&")[1];
 					if (args.length < 1) return reply(`「❗」Contoh : ${prefix}glitchtext Ramlan & Gans`)
-					reply(ind.wait())
-					buffer = await getBuffer(`https://api.xteam.xyz/textpro/glitch?text=${gli}&text2=${tch}&APIKEY=${XteamKey}`)
+					reply(nad.wait())
+					buffer = await getBuffer(`https://api.zeks.xyz/api/gtext?text1=${gli}&text2=${tch}&apikey=apivinz`)
 					baby.sendMessage(from, buffer, image, {quoted: mek})
 					await limitAdd(sender)
 					break
 				case 'simi':
-				if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (isLimit(sender)) return reply(ind.limitend(pusname))
+				if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
 					if (args.length < 1) return reply(`Mau nanya apa? Contoh : ${prefix}simi halo`)
 					teks = body.slice(5)
-					anu = await fetchJson(`https://api.xteam.xyz/simsimi?kata=${teks}&APIKEY=${XteamKey}`)
-					reply(anu.jawaban)
+					anu = await fetchJson(`https://vinz.zeks.xyz/api/sim?text=${teks}`)
+					reply(anu.result)
+					await limitAdd(sender)
 					break					
 				case 'tts':
-				if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (isLimit(sender)) return reply(ind.limitend(pusname))
+				if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
 				if (args.length < 1) return baby.sendMessage(from, 'Kode bahasanya mana kak? contoh : ${prefix}tts id Halo Ramlan', text, {quoted: mek})
 					const gtts = require('./lib/gtts')(args[0])
 					if (args.length < 2) return baby.sendMessage(from, `Teksnya mana kak | contoh : ${prefix}tts id ah yamate kudasai`, text, {quoted: mek})
@@ -805,43 +805,44 @@ switch(command) {
 						exec(`ffmpeg -i ${ranm} -ar 48000 -vn -c:a libopus ${rano}`, (err) => {
 							fs.unlinkSync(ranm)
 							buff = fs.readFileSync(rano)
-							if (err) return reply(ind.stikga())
+							if (err) return reply(nad.stikga())
 							baby.sendMessage(from, buff, audio, {quoted: mek, ptt:true})
 							fs.unlinkSync(rano)
 						})
 					})
 					await limitAdd(sender)
 					break
-					case 'ttp':
-					if (isBanned) return reply(ind.baned())
-					if (!isRegistered) return reply(ind.noregis())
-				    if (isLimit(sender)) return reply(ind.limitend(pusname))
-					if (args.length < 1) return reply('yang mau dijadiin text sticker apaan, titit kah?')
-					ranp = getRandom('.png')
-					rano = getRandom('.webp')
-					teks = body.slice(4).trim()
-					anu = await fetchJson(`https://mhankbarbar.tech/api/text2image?text=${teks}&apiKey=${BarBarKey}`, {method: 'get'})
-					if (anu.error) return reply(anu.error)
-					exec(`wget ${anu.result} -O ${ranp} && ffmpeg -i ${ranp} -vcodec libwebp -filter:v fps=fps=20 -lossless 1 -loop 0 -preset default -an -vsync 0 -s 512:512 ${rano}`, (err) => {
-						fs.unlinkSync(ranp)
-						if (err) return reply(ind.stikga())
-						baby.sendMessage(from, fs.readFileSync(rano), sticker, {quoted: mek})
-						fs.unlinkSync(rano)
-					})
-                        await limitAdd(sender)
-					break
+							case 'ttp': //By NOIR X RAMLAN ID
+							pngttp = './temp/ttp.png'
+							webpng = './temp/ttp.webp'
+							const ttptext = body.slice(5)
+							fetch(`https://api.areltiyan.site/sticker_maker?text=${ttptext}`, { method: 'GET'})
+							.then(async res => {
+							const ttptxt = await res.json()
+							console.log("RAMLANID")
+							base64Img.img(ttptxt.base64, 'temp', 'ttp', function(err, filepath) {
+							if (err) return console.log(err);
+							exec(`ffmpeg -i ${pngttp} -vcodec libwebp -filter:v fps=fps=20 -lossless 1 -loop 0 -preset default -an -vsync 0 -s 512:512 ${webpng}`, (err) => {
+							buffer = fs.readFileSync(webpng)
+							baby.sendMessage(from, buffer, sticker)
+							fs.unlinkSync(webpng)
+							fs.unlinkSync(pngttp)
+							})
+							})
+							});
+							break
 				case 'toimg':
-				if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (isLimit(sender)) return reply(ind.limitend(pusname))
+				if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
 				if (!isQuotedSticker) return reply('Reply atau Tag sticker yang mau dijadiin gambar kak >_<')
-					reply(ind.wait())
+					reply(nad.wait())
 					encmedia = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
 					media = await baby.downloadAndSaveMediaMessage(encmedia)
 					ran = getRandom('.png')
 					exec(`ffmpeg -i ${media} ${ran}`, (err) => {
 						fs.unlinkSync(media)
-						if (err) return reply(ind.stikga())
+						if (err) return reply(nad.stikga())
 						buffer = fs.readFileSync(ran)
 						baby.sendMessage(from, buffer, image, {quoted: mek, caption: 'nih kak [(^.^)]'})
 						fs.unlinkSync(ran)
@@ -855,36 +856,45 @@ switch(command) {
                 baby.sendMessage(from, `Speed: ${latensi.toFixed(4)} _ms_`, text, { quoted: mek})
                     break					
                 case 'bikinquote':
-                if (isBanned) return reply(ind.baned())
-                if (!isRegistered) return reply(ind.noregis())
-                if (isLimit(sender)) return reply(ind.limitend(pusname))
+                if (isBanned) return reply(nad.baned())
+                if (!isRegistered) return reply(nad.noregis())
+                if (isLimit(sender)) return reply(nad.limitend(pusname))
                 var gh = body.slice(12)
 					var quote = gh.split("&")[0];
 					var wm = gh.split("&")[1];
 					const pref = `yang mau dijadiin quote apaan, titit?\n\ncontoh : ${prefix}bikinquote aku bukan boneka & Kata Ramlan`
 					if (args.length < 1) return reply(pref)
-					reply(ind.wait())
+					reply(nad.wait())
 					anu = await fetchJson(`https://terhambar.com/aw/qts/?kata=${quote}&author=${wm}&tipe=random`, {method: 'get'})
 					buffer = await getBuffer(anu.result)
 					baby.sendMessage(from, buffer, image, {caption: 'Nih kak >_<', quoted: mek})
 					await limitAdd(sender)
 					break
+                case 'meme':
+                if (isBanned) return reply(nad.baned())
+                if (!isRegistered) return reply(nad.noregis())
+                if (isLimit(sender)) return reply(nad.limitend(pusname))
+					nganu = await fetchJson(`https://vinz.zeks.xyz/api/meme`)
+					buper = await getBuffer(nganu.result)
+					baby.sendMessage(from, buper, image, {quoted: mek})
+					await limitAdd(sender)
+					break					
                    case 'stalkig':
-                   if (isBanned) return reply(ind.baned())
-                   if (!isRegistered) return reply(ind.noregis())
-                   if (isLimit(sender)) return reply(ind.limitend(pusname))
+                   if (isBanned) return reply(nad.baned())
+                   if (!isRegistered) return reply(nad.noregis())
+                   if (isLimit(sender)) return reply(nad.limitend(pusname))
                      teks = body.slice(9)
-                     anu = await fetchJson(`https://api.vhtear.com/igprofile?query=${teks}&apikey=${VhtearKey}`, {method: 'get'})
+                     anu = await fetchJson(`https://api.xteam.xyz/dl/igstalk?nama=${teks}&APIKEY=${XteamKey}`, {method: 'get'})
                      reply('「❗」Sabar Lagi Stalking IG nya kak')
-                     buffer = await getBuffer(anu.result.picture)
-                     hasil = `YAHAHA TELAH DI STALK BOS KU UNTUK USERNAME ${teks} \n\n *Username?* : _${anu.result.username}_ \n *Nama??* : _${anu.result.full_name}_ \n *Jumlah Follower??﹦?* : _${anu.result.follower}_ \n *Jumlah Following?* : _${anu.result.follow}_ \n *Jumlah Post?* : _${anu.result.post_count}_ \n *Biografi?? :* _${anu.result.biography}`
+                     buffer = await getBuffer(anu.result.user.hd_profile_pic_url_info.url)
+                     hasil = `YAHAHA TELAH DI STALK BOS KU UNTUK USERNAME ${teks} \n\n *Username?* : _${anu.result.user.username}_ \n *Nama??* : _${anu.result.user.full_name}_ \n *Jumlah Follower??﹦?* : _${anu.result.user.follower_count}_ \n *Jumlah Following?* : _${anu.result.user.following_count}_ \n *Jumlah Post?* : _${anu.result.user.media_count}_ \n *Biografi?? :* _${anu.result.user.biography}`
                     baby.sendMessage(from, buffer, image, {quoted: mek, caption: hasil})
                     await limitAdd(sender)
 			       break
 				case 'daftar':
-				if (isBanned) return reply(ind.baned())
-                if (isRegistered) return  reply(ind.rediregis())
-                if (!q.includes('|')) return  reply(ind.wrongf())
+				if (isBanned) return reply(nad.baned())
+                if (isRegistered) return  reply(nad.rediregis())
+                if (!q.includes('|')) return  reply(nad.wrongf())
                 const namaUser = q.substring(0, q.indexOf('|') - 0)
                 const umurUser = q.substring(q.lastIndexOf('|') + 1)
                 const serialUser = createSerial(20)
@@ -893,34 +903,22 @@ switch(command) {
                 veri = sender
                 if (isGroup) {
                     addRegisteredUser(sender, namaUser, umurUser, time, serialUser)
-                    await reply(ind.registered(namaUser, umurUser, serialUser, time, sender))
+                    await reply(nad.registered(namaUser, umurUser, serialUser, time, sender))
                     addATM(sender)
                     addLevelingId(sender)
                     console.log(color('[REGISTER]'), color(time, 'yellow'), 'Name:', color(namaUser, 'cyan'), 'Age:', color(umurUser, 'cyan'), 'Serial:', color(serialUser, 'cyan'), 'in', color(sender || groupName))
                 } else {
                     addRegisteredUser(sender, namaUser, umurUser, time, serialUser)
-                    await reply(ind.registered(namaUser, umurUser, serialUser, time, sender))
+                    await reply(nad.registered(namaUser, umurUser, serialUser, time, sender))
                     addATM(sender)
                     addLevelingId(sender)
                     console.log(color('[REGISTER]'), color(time, 'yellow'), 'Name:', color(namaUser, 'cyan'), 'Age:', color(umurUser, 'cyan'), 'Serial:', color(serialUser, 'cyan'))
                 }
 					break
-		case 'silktext':
-				if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (isLimit(sender)) return reply(ind.limitend(pusname))				
-				if (args.length < 1) return reply(ind.wrongf())
-				silk = body.slice(10)
-				if (silk.length > 7) return reply('Teksnya kepanjangan, maksimal 6 karakter')
-				reply(ind.wait())
-				buffer = await getBuffer(`https://api.vhtear.com/silktext?text=${silk}&apikey=${VhtearKey}`)
-		    baby.sendMessage(from, buffer, image, {quoted: mek})
-		    await limitAdd(sender)	
-		    break
 // PREMIUM
 				case 'premiumlist':
 					baby.updatePresence(from, Presence.composing) 
-                    if (!isRegistered) return reply(ind.noregis())
+                    if (!isRegistered) return reply(nad.noregis())
 					teks = `╭─「 *JUMLAH USER PREMIUM* 」\n`
 					no = 0
 					for (let prem of premium) {
@@ -932,9 +930,9 @@ switch(command) {
 					break
 				case 'bokep':
 				baby.updatePresence(from, Presence.composing) 
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (!isPrem) return reply(ind.premium())
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (!isPrem) return reply(nad.premium())
 				 data = fs.readFileSync('./src/18.js');
                  jsonData = JSON.parse(data);
                  randIndex = Math.floor(Math.random() * jsonData.length);
@@ -945,9 +943,9 @@ switch(command) {
                  baby.sendMessage(from, randBokep, image, {quoted: mek, caption: randTeks})
 				break
 				case 'mutual':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (!isPrem) return reply(ind.premium())
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (!isPrem) return reply(nad.premium())
                 if (isGroup) return  reply( 'TIDAK BISA DI GRUP KAK')
                 anug = getRegisteredRandomId(_registered).replace('@s.whatsapp.net','')
                 await reply('Mencari Pasangan >_<')
@@ -955,9 +953,9 @@ switch(command) {
                 await reply( `Pasangan Ditemukan: 🐊\n*${prefix}next* — Temukan Pasangan Baru`)
             break
             case 'next':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (!isPrem) return reply(ind.premium())
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (!isPrem) return reply(nad.premium())
                 if (isGroup) return  reply( 'TIDAK BISA DI GRUP KAK')
                 anug = getRegisteredRandomId(_registered).replace('@s.whatsapp.net','')
                 await reply('Mencari Pasangan >_<')
@@ -965,102 +963,193 @@ switch(command) {
                 await reply( `Pasangan Ditemukan: 🐊\n*${prefix}next* — Temukan Pasangan Baru`)
                 break
                 case 'blowjob':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (!isPrem) return reply(ind.premium())
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (!isPrem) return reply(nad.premium())
+				                   if (!isGroup) return reply(nad.groupo())
+                   if (!isNsfw) return reply(nad.nsfwoff())
 					ranp = getRandom('.gif')
 					rano = getRandom('.webp')
-					anu = await fetchJson(`https://tobz-api.herokuapp.com/api/nsfwblowjob?apikey=${TobzKey}`, {method: 'get'})
+					anu = await fetchJson(`https://tobz-api.herokuapp.com/api/nsfwblowjob?apikey=BotWeA`, {method: 'get'})
 					if (anu.error) return reply(anu.error)
 					exec(`wget ${anu.result} -O ${ranp} && ffmpeg -i ${ranp} -vcodec libwebp -filter:v fps=fps=15 -lossless 1 -loop 0 -preset default -an -vsync 0 -s 512:512 ${rano}`, (err) => {
 						fs.unlinkSync(ranp)
-						if (err) return reply(ind.stikga())
+						if (err) return reply(nad.stikga())
 						buffer = fs.readFileSync(rano)
 						baby.sendMessage(from, buffer, sticker, {quoted: mek})
 						fs.unlinkSync(rano)
 					})
 					break
                 case 'nangis':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (!isPrem) return reply(ind.premium())
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (!isPrem) return reply(nad.premium())
 					ranp = getRandom('.gif')
 					rano = getRandom('.webp')
-					anu = await fetchJson(`https://tobz-api.herokuapp.com/api/cry?apikey=${TobzKey}`, {method: 'get'})
+					anu = await fetchJson(`https://tobz-api.herokuapp.com/api/cry?apikey=BotWeA`, {method: 'get'})
 					reply('「❗」KASIH JEDA 1 MENIT HABIS INI YA KAK')
 					if (anu.error) return reply(anu.error)
 					exec(`wget ${anu.result} -O ${ranp} && ffmpeg -i ${ranp} -vcodec libwebp -filter:v fps=fps=15 -lossless 1 -loop 0 -preset default -an -vsync 0 -s 512:512 ${rano}`, (err) => {
 						fs.unlinkSync(ranp)
-						if (err) return reply(ind.stikga())
+						if (err) return reply(nad.stikga())
 						buffer = fs.readFileSync(rano)
 						baby.sendMessage(from, buffer, sticker, {quoted: mek})
 						fs.unlinkSync(rano)
+					})
+					break
+		 case 'tomp3':
+                if (isBanned) return reply(nad.baned())
+                if (!isRegistered) return reply(nad.noregis())
+				if (!isPrem) return reply(nad.premium())
+                	baby.updatePresence(from, Presence.composing) 
+					if (!isQuotedVideo) return reply('*Reply video nya lah-_-*')
+					reply(nad.wait())
+					encmedia = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
+					media = await baby.downloadAndSaveMediaMessage(encmedia)
+					ran = getRandom('.mp4')
+					exec(`ffmpeg -i ${media} ${ran}`, (err) => {
+						fs.unlinkSync(media)
+						if (err) return reply('Yahh gagall um:(')
+						rmln = fs.readFileSync(ran)
+						baby.sendMessage(from, rmln, audio, {mimetype: 'audio/mp4', quoted: mek})
+						fs.unlinkSync(ran)
+					}) 
+					break
+				case 'slowmo':
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (!isPrem) return reply(nad.premium())
+				encmedia = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
+				media = await baby.downloadAndSaveMediaMessage(encmedia)
+				ran = getRandom('.mp3')
+				exec(`ffmpeg -i ${media} -filter:a "atempo=0.7,asetrate=44100" ${ran}`, (err, stderr, stdout) => {
+				fs.unlinkSync(media)
+				if (err) return reply('Error!')
+				uhh = fs.readFileSync(ran)
+				baby.sendMessage(from, uhh, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek})
+				fs.unlinkSync(ran)
+				})
+				break
+
+				case 'tupai':
+				                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (!isPrem) return reply(nad.premium())
+					encmedia = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
+					media = await baby.downloadAndSaveMediaMessage(encmedia)
+					ran = getRandom('.mp3')
+					exec(`ffmpeg -i ${media} -filter:a "atempo=0.5,asetrate=65100" ${ran}`, (err, stderr, stdout) => {
+						fs.unlinkSync(media)
+						if (err) return reply('Error!')
+						hah = fs.readFileSync(ran)
+						baby.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek})
+						fs.unlinkSync(ran)
+					})
+				break
+				case 'gemok':
+				                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (!isPrem) return reply(nad.premium())
+					encmedia = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
+					media = await baby.downloadAndSaveMediaMessage(encmedia)
+					ran = getRandom('.mp3')
+					exec(`ffmpeg -i ${media} -filter:a "atempo=1.6,asetrate=22100" ${ran}`, (err, stderr, stdout) => {
+						fs.unlinkSync(media)
+						if (err) return reply('Error!')
+						hah = fs.readFileSync(ran)
+						baby.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek})
+						fs.unlinkSync(ran)
+					})
+				break
+				case 'ngebass':                 
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (!isPrem) return reply(nad.premium())
+					encmedia = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
+
+					media = await baby.downloadAndSaveMediaMessage(encmedia)
+					ran = getRandom('.mp3')
+					exec(`ffmpeg -i ${media} -af equalizer=f=94:width_type=o:width=2:g=30 ${ran}`, (err, stderr, stdout) => {
+						fs.unlinkSync(media)
+						if (err) return reply('Error!')
+						hah = fs.readFileSync(ran)
+						baby.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek})
+						fs.unlinkSync(ran)
 					})
 					break
 					case 'cium':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (!isPrem) return reply(ind.premium())
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (!isPrem) return reply(nad.premium())
 					ranp = getRandom('.gif')
 					rano = getRandom('.webp')
-					anu = await fetchJson(`https://tobz-api.herokuapp.com/api/kiss?apikey=${TobzKey}`, {method: 'get'})
+					anu = await fetchJson(`https://tobz-api.herokuapp.com/api/kiss?apikey=BotWeA`, {method: 'get'})
 					reply('「❗」KASIH JEDA 1 MENIT HABIS INI YA KAK')
 					if (anu.error) return reply(anu.error)
 					exec(`wget ${anu.result} -O ${ranp} && ffmpeg -i ${ranp} -vcodec libwebp -filter:v fps=fps=15 -lossless 1 -loop 0 -preset default -an -vsync 0 -s 512:512 ${rano}`, (err) => {
 						fs.unlinkSync(ranp)
-						if (err) return reply(ind.stikga())
+						if (err) return reply(nad.stikga())
 						buffer = fs.readFileSync(rano)
 						baby.sendMessage(from, buffer, sticker, {quoted: mek})
 						fs.unlinkSync(rano)
 					})
 					break
+				case 'wiki':
+					if (args.length < 1) return reply('masukan kata kunci')
+					if (isBanned) return reply(nad.baned())
+					if (!isRegistered) return reply(nad.noregis())
+				    if (isLimit(sender)) return reply(nad.limitend(pusname))
+					anu = await fetchJson(`https://st4rz.herokuapp.com/api/wiki?q=${body.slice(6)}`)
+					reply(anu.result)
+                    await limitAdd(sender)
+					break					
 					case 'peluk':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (!isPrem) return reply(ind.premium())
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (!isPrem) return reply(nad.premium())
 					ranp = getRandom('.gif')
 					rano = getRandom('.webp')
-					anu = await fetchJson(`https://tobz-api.herokuapp.com/api/hug?apikey=${TobzKey}`, {method: 'get'})
+					anu = await fetchJson(`https://tobz-api.herokuapp.com/api/hug?apikey=BotWeA`, {method: 'get'})
 					reply('「❗」KASIH JEDA 1 MENIT HABIS INI YA KAK')
 					if (anu.error) return reply(anu.error)
 					exec(`wget ${anu.result} -O ${ranp} && ffmpeg -i ${ranp} -vcodec libwebp -filter:v fps=fps=15 -lossless 1 -loop 0 -preset default -an -vsync 0 -s 512:512 ${rano}`, (err) => {
 						fs.unlinkSync(ranp)
-						if (err) return reply(ind.stikga())
+						if (err) return reply(nad.stikga())
 						buffer = fs.readFileSync(rano)
 						baby.sendMessage(from, buffer, sticker, {quoted: mek})
 						fs.unlinkSync(rano)
 					})
 					break
 				case 'yutubdl':
-					if (args.length < 1) return reply('Urlnya mana um?')
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (!isPrem) return reply(ind.premium())
-					if(!isUrl(args[0]) && !args[0].includes('youtu')) return reply('URL NYA TIDAK VALID KAK')				
-		anu = await fetchJson(`https://api.vhtear.com/ytdl?link=${args[0]}&apikey=${VhtearKey}`, {method: 'get'})
-					if (anu.error) return reply(anu.error)
-					teks = `*➸ JUDUL* : ${anu.result.title}\n\n*[WAIT] Proses Dumlu Yakan*`
-					thumb = await getBuffer(anu.result.imgUrl)
-					baby.sendMessage(from, thumb, image, {quoted: mek, caption: teks})
-					buffer = await getBuffer(anu.result.UrlVideo)
-					baby.sendMessage(from, buffer, video, {mimetype: 'video/mp4', quoted: mek})
+					if (isBanned) return reply(nad.baned())
+					if (!isRegistered) return reply(nad.noregis())
+				    if (isLimit(sender)) return reply(nad.limitend(pusname))
+					lah = await fetchJson(`https://st4rz.herokuapp.com/api/ytv2?url=${body.slice(9)}`)
+					if (lah.error) return reply(lah.error)
+					teks = `*➸ JUDUL* : ${lah.title}\n\n*[WAIT] Proses Dumlu Yakan*`
+					buffer = await getBuffer(lah.thumb)
+					baby.sendMessage(from, buffer, image, {quoted: mek, caption: teks})
+					buff = await getBuffer(lah.result)
+					baby.sendMessage(from, buff, video, {mimetype: 'video/mp4', quoted: mek})
+					await limitAdd(sender)
 					break
 				case 'tiktod':
 					if (args.length < 1) return reply('Urlnya mana um?')
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (!isPrem) return reply(ind.premium())
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
 					if(!isUrl(args[0]) && !args[0].includes('youtu')) return reply('URL NYA TIDAK VALID KAK')
-					anu = await fetchJson(`https://api.vhtear.com/tiktokdl?link=${args[0]}&apikey=${VhtearKey}`,)
+					anu = await fetchJson(`https://api.zeks.xyz/api/tiktok?url=${args[0]}&apikey=apivinz`,)
 					reply('[WAIT] Proses Dumlu Yakan')
-					buffer = await getBuffer(anu.result.video)
-					baby.sendMessage(from, buffer, video, {mimetype: 'video/mp4', quoted: mek})
+					rmln = await getBuffer(anu.result.result.server_1)
+					baby.sendMessage(from, rmln, video, {mimetype: 'video/mp4', quoted: mek})
+					await limitAdd(sender)
 					break
 					case 'hidetag5':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (!isPrem) return reply(ind.premium())
-					if (!isGroup) return reply(ind.groupo())
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (!isPrem) return reply(nad.premium())
+					if (!isGroup) return reply(nad.groupo())
 					var value = body.slice(10)
 					var group = await baby.groupMetadata(from)
 					var member = group['participants']
@@ -1080,10 +1169,10 @@ switch(command) {
 	                .then(() => {baby.sendMessage(from, options, text)})
 					break
 					case 'hidetag10':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (!isPrem) return reply(ind.premium())
-					if (!isGroup) return reply(ind.groupo())
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (!isPrem) return reply(nad.premium())
+					if (!isGroup) return reply(nad.groupo())
 					var value = body.slice(11)
 					var group = await baby.groupMetadata(from)
 					var member = group['participants']
@@ -1108,49 +1197,32 @@ switch(command) {
 	                .then(() => {baby.sendMessage(from, options, text)})	                	                
 					break
                 case 'randomhentong':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (!isPrem) return reply(ind.premium())
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (!isPrem) return reply(nad.premium())
 					gatauda = body.slice(15)
-					reply(ind.wait())
-					anu = await fetchJson(`https://tobz-api.herokuapp.com/api/hentai?apikey=${TobzKey}`)
-					buffer = await getBuffer(anu.result)
+					reply(nad.wait())
+					buffer = await getBuffer(`https://api.xteam.xyz/randomimage/hentai?APIKEY=${XteamKey}`)
 					baby.sendMessage(from, buffer, image, {quoted: mek})
-					break																													               							
+					break
+                case 'quran':
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (!isPrem) return reply(nad.premium())
+					reply(nad.wait())
+					buffer = await getBuffer(`https://api.xteam.xyz/randomimage/hentai?APIKEY=${XteamKey}`)
+					baby.sendMessage(from, buffer, image, {quoted: mek})
+					break																																	               							
 // PREMIUM		    								
 /*
 ]=====> GABUTZ MENU <=====[
 */
-				case 'caklontong':
-				if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (isLimit(sender)) return reply(ind.limitend(pusname))
-					anu = await fetchJson(`https://api.vhtear.com/funkuis&apikey=${VhtearKey}`, {method: 'get'})
-					caklontong = `*${anu.result.soal}*`
-					lontong = `➸ Jawaban : *${anu.result.jawaban}* \n➸ Penjelasan : *${anu.result.desk}*`
-					setTimeout( () => {
-					baby.sendMessage(from, lontong, text, {quoted: mek})					
-					}, 30000) // 1000 = 1s,
-					setTimeout( () => {
-					baby.sendMessage(from, '_10 Detik lagi…_', text)
-					}, 20000) // 1000 = 1s,
-					setTimeout( () => {
-					baby.sendMessage(from, '_20 Detik lagi..._', text)
-					}, 10000) // 1000 = 1s,
-					setTimeout( () => {
-					baby.sendMessage(from, '_30 Detik lagi..._', text)
-					}, 2500) // 1000 = 1s,
-					setTimeout( () => {
-					baby.sendMessage(from, caklontong, text, {quoted: mek})
-					}, 0) // 1000 = 1s,
-					await limitAdd(sender) 
-					break 
 				case 'tebakin':
-				if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (isLimit(sender)) return reply(ind.limitend(pusname))
-					anu = await fetchJson(`https://api.vhtear.com/tebakgambar&apikey=${VhtearKey}`, {method: 'get'})
-					ngebuff = await getBuffer(anu.result.soalImg)
+				if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
+					anu = await fetchJson(`https://api.zeks.xyz/api/tebakgambar?apikey=apivinz`, {method: 'get'})
+					ngebuff = await getBuffer(anu.result.soal)
 					tebak = `➸ Jawaban : *${anu.result.jawaban}*`
 					setTimeout( () => {
 					baby.sendMessage(from, tebak, text, {quoted: mek})
@@ -1170,9 +1242,9 @@ switch(command) {
 					await limitAdd(sender) 
 					break
 				case 'bisakah':
-				if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (isLimit(sender)) return reply(ind.limitend(pusname))
+				if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
 					bisakah = body.slice(1)
 					const bisa =['Tentu Saja Bisa! Kamu Adalah Orang Paling Homky','Gak Bisa Ajg Aowkwowk','Hmm Gua Gak Tau Yaa, tanya ama bapakau','Ulangi Tod Gua Ga Paham']
 					const keh = bisa[Math.floor(Math.random() * bisa.length)]
@@ -1180,9 +1252,9 @@ switch(command) {
 					await limitAdd(sender)
 					break
 				case 'kapankah':
-				if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (isLimit(sender)) return reply(ind.limitend(pusname))
+				if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
 					kapankah = body.slice(1)
 					const kapan =['Besok','Lusa','Tadi','4 Hari Lagi','5 Hari Lagi','6 Hari Lagi','1 Minggu Lagi','2 Minggu Lagi','3 Minggu Lagi','1 Bulan Lagi','2 Bulan Lagi','3 Bulan Lagi','4 Bulan Lagi','5 Bulan Lagi','6 Bulan Lagi','1 Tahun Lagi','2 Tahun Lagi','3 Tahun Lagi','4 Tahun Lagi','5 Tahun Lagi','6 Tahun Lagi','1 Abad lagi','3 Hari Lagi']
 					const koh = kapan[Math.floor(Math.random() * kapan.length)]
@@ -1190,9 +1262,9 @@ switch(command) {
 					await limitAdd(sender)
 					break
            case 'apakah':
-           if (isBanned) return reply(ind.baned())
-           if (!isRegistered) return reply(ind.noregis())
-           if (isLimit(sender)) return reply(ind.limitend(pusname))
+           if (isBanned) return reply(nad.baned())
+           if (!isRegistered) return reply(nad.noregis())
+           if (isLimit(sender)) return reply(nad.limitend(pusname))
 					apakah = body.slice(1)
 					const apa =['Iya','Tidak','Bisa Jadi','Ulangi bro gak paham']
 					const kah = apa[Math.floor(Math.random() * apa.length)]
@@ -1200,9 +1272,9 @@ switch(command) {
 					await limitAdd(sender)
 					break
 				case 'rate':
-				if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (isLimit(sender)) return reply(ind.limitend(pusname))
+				if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
 					rate = body.slice(1)
 					const ra =['4','9','17','28','34','48','59','62','74','83','97','100','29','94','75','82','41','39']
 					const te = ra[Math.floor(Math.random() * ra.length)]
@@ -1210,9 +1282,9 @@ switch(command) {
 					await limitAdd(sender)
 					break
            case 'hobby':
-           if (isBanned) return reply(ind.baned())
-           if (!isRegistered) return reply(ind.noregis())
-           if (isLimit(sender)) return reply(ind.limitend(pusname))
+           if (isBanned) return reply(nad.baned())
+           if (!isRegistered) return reply(nad.noregis())
+           if (isLimit(sender)) return reply(nad.limitend(pusname))
 					hobby = body.slice(1)
 					const hob =['Desah Di Game','Ngocokin Doi','Stalking sosmed nya mantan','Kau kan gak punya hobby awokawok','Memasak','Membantu Atok','Mabar','Nobar','Sosmedtan','Membantu Orang lain','Nonton Anime','Nonton Drakor','Naik Motor','Nyanyi','Menari','Bertumbuk','Menggambar','Foto fotoan Ga jelas','Maen Game','Berbicara Sendiri']
 					const by = hob[Math.floor(Math.random() * hob.length)]
@@ -1220,19 +1292,19 @@ switch(command) {
 					await limitAdd(sender)
 					break
 case 'neontext':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (!isPrem) return reply(ind.premium())
-if (args.length < 1) return reply(`「❗」Contoh : ${prefix}neontext Ramlan`)
-neon = body.slice(10)
-reply('「❗」WAIT GANS')
-anu = await getBuffer(`https://api.xteam.xyz/textpro/neon?text=$APIKEY=${XteamKey}`)
-baby.sendMessage(from, anu, image, {quoted: mek})
-break					
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (!isPrem) return reply(nad.premium())
+					if (args.length < 1) return reply(`「❗」Contoh : ${prefix}neontext Ramlan`)
+					neon = body.slice(10)
+					reply('「❗」WAIT GANS')
+					anu = await getBuffer(`https://api.xteam.xyz/textpro/neon?text=$APIKEY=${XteamKey}`)
+					baby.sendMessage(from, anu, image, {quoted: mek})
+					break					
            case 'seberapagay':
-           if (isBanned) return reply(ind.baned())
-           if (!isRegistered) return reply(ind.noregis())
-           if (isLimit(sender)) return reply(ind.limitend(pusname))
+           if (isBanned) return reply(nad.baned())
+           if (!isRegistered) return reply(nad.noregis())
+           if (isLimit(sender)) return reply(nad.limitend(pusname))
 					gay = body.slice(13)
 		   anu = await fetchJson(`https://arugaz.herokuapp.com/api/howgay`, {method: 'get'})
 		   hasil = `Nih Liat Data Gay Si ${gay}\n\n\nPersentase Gay : ${anu.persen}%\nAlert!!! : ${anu.desc}`
@@ -1240,165 +1312,177 @@ break
 		   await limitAdd(sender)
 					break	
                 case 'truth':
-                if (isBanned) return reply(ind.baned())
-                if (!isRegistered) return reply(ind.noregis())
-				if (isLimit(sender)) return reply(ind.limitend(pusname))
+                if (isBanned) return reply(nad.baned())
+                if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
 					const trut =['Pernah suka sama siapa aja? berapa lama?','Kalau boleh atau kalau mau, di gc/luar gc siapa yang akan kamu jadikan sahabat?(boleh beda/sma jenis)','apa ketakutan terbesar kamu?','pernah suka sama orang dan merasa orang itu suka sama kamu juga?','Siapa nama mantan pacar teman mu yang pernah kamu sukai diam diam?','pernah gak nyuri uang nyokap atau bokap? Alesanya?','hal yang bikin seneng pas lu lagi sedih apa','pernah cinta bertepuk sebelah tangan? kalo pernah sama siapa? rasanya gimana brou?','pernah jadi selingkuhan orang?','hal yang paling ditakutin','siapa orang yang paling berpengaruh kepada kehidupanmu','hal membanggakan apa yang kamu dapatkan di tahun ini','siapa orang yang bisa membuatmu sange','siapa orang yang pernah buatmu sange','(bgi yg muslim) pernah ga solat seharian?','Siapa yang paling mendekati tipe pasangan idealmu di sini','suka mabar(main bareng)sama siapa?','pernah nolak orang? alasannya kenapa?','Sebutkan kejadian yang bikin kamu sakit hati yang masih di inget','pencapaian yang udah didapet apa aja ditahun ini?','kebiasaan terburuk lo pas di sekolah apa?']
 					const ttrth = trut[Math.floor(Math.random() * trut.length)]
 					truteh = await getBuffer(`https://i.ibb.co/305yt26/bf84f20635dedd5dde31e7e5b6983ae9.jpg`)
 					baby.sendMessage(from, truteh, image, { caption: '*Truth*\n\n'+ ttrth, quoted: mek })
+					await limitAdd(sender)
 					break
                 case 'dare':
-                if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (isLimit(sender)) return reply(ind.limitend(pusname))                
+                if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))                
 					const dare =['Kirim pesan ke mantan kamu dan bilang "aku masih suka sama kamu','telfon crush/pacar sekarang dan ss ke pemain','pap ke salah satu anggota grup','Bilang "KAMU CANTIK BANGET NGGAK BOHONG" ke cowo','ss recent call whatsapp','drop emot 🤥 setiap ngetik di gc/pc selama 1 hari','kirim voice note bilang can i call u baby?','drop kutipan lagu/quote, terus tag member yang cocok buat kutipan itu','pake foto sule sampe 3 hari','ketik pake bahasa daerah 24 jam','ganti nama menjadi "gue anak lucinta luna" selama 5 jam','chat ke kontak wa urutan sesuai %batre kamu, terus bilang ke dia "i lucky to hv you','prank chat mantan dan bilang " i love u, pgn balikan','record voice baca surah al-kautsar','bilang "i hv crush on you, mau jadi pacarku gak?" ke lawan jenis yang terakhir bgt kamu chat (serah di wa/tele), tunggu dia bales, kalo udah ss drop ke sini','sebutkan tipe pacar mu!','snap/post foto pacar/crush','teriak gajelas lalu kirim pake vn kesini','pap mukamu lalu kirim ke salah satu temanmu','kirim fotomu dengan caption, aku anak pungut','teriak pake kata kasar sambil vn trus kirim kesini','teriak " anjimm gabutt anjimmm " di depan rumah mu','ganti nama jadi " BOWO " selama 24 jam','Pura pura kerasukan, contoh : kerasukan maung, kerasukan belalang, kerasukan kulkas, dll']
 					const der = dare[Math.floor(Math.random() * dare.length)]
 					tod = await getBuffer(`https://i.ibb.co/305yt26/bf84f20635dedd5dde31e7e5b6983ae9.jpg`)
 					baby.sendMessage(from, tod, image, { quoted: mek, caption: '*Dare*\n\n'+ der })
+					await limitAdd(sender)
+					break
+                case 'cekbapak': // By Ramlan ID
+                if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
+				const bapak =['Wah Mantap Lu Masih Punya Bapack\nPasti Bapack Nya Kuli :v\nAwowkwokwwok\n#CandabOs','Aowkwwo Disini Ada Yteam :v\nLu Yteam Bro? Awowkwowk\nSabar Bro Ga Punya Bapack\n#Camda','Bjir Bapack Mu Ternyata Sudah Cemrai\nSedih Bro Gua Liatnya\nTapi Nih Tapi :v\nTetep Ae Lu Yteam Aowkwowkw Ngakak :v','Jangan #cekbapak Mulu Broo :v\nKasian Yang Yteam\nNtar Tersinggung Kan\nYahahaha Hayyuk By : Ramlan ID']
+					const cek = bapak[Math.floor(Math.random() * bapak.length)]
+					baby.sendMessage(from, cek, text, { quoted: mek})
+					await limitAdd(sender)
 					break
                   case 'timer':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (isLimit(sender)) return reply(ind.limitend(pusname))                  
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))                  
 				if (args[1]=="detik") {var timer = args[0]+"000"
 				} else if (args[1]=="menit") {var timer = args[0]+"0000"
 				} else if (args[1]=="jam") {var timer = args[0]+"00000"
 				} else {return reply("*pilih:*\ndetik\nmenit\njam")}
 				setTimeout( () => {
-				reply("Waktu habis")
+				reply("Bangun Woyy Habis Waktu :v")
 				}, timer)
 				break						   
 /*
 ]=====> MENU GRUP <=====[
 */		 
 				case 'welcome':
-                  if (isBanned) return reply(ind.baned())				
-					if (!isGroup) return reply(ind.groupo())
-					if (!isGroupAdmins) return reply(ind.admin())
+                  if (isBanned) return reply(nad.baned())				
+					if (!isGroup) return reply(nad.groupo())
+					if (!isGroupAdmins) return reply(nad.admin())
 					if (args.length < 1) return reply('Ekhemm >_<')
 					if (Number(args[0]) === 1) {
 						if (isWelkom) return reply('*FITUR WELCOME SUDAH AKTIF KAK*')
 						welkom.push(from)
 						fs.writeFileSync('./database/group/welkom.json', JSON.stringify(welkom))
-						reply('*「SUKSES」 MENGAKTIFKAN FITUR WELCOME DI GROUP*')
+						reply('*「 SUKSES 」MENGAKTIFKAN FITUR WELCOME DI GROUP*')
 					} else if (Number(args[0]) === 0) {
 						welkom.splice(from, 1)
 						fs.writeFileSync('./database/group/welkom.json', JSON.stringify(welkom))
-						reply('*「SUKSES」 MEMATIKAN FITUR WELCOME DI GROUP*')
+						reply('*「 SUKSES 」MEMATIKAN FITUR WELCOME DI GROUP*')
 					} else {
-						reply(ind.satukos())
+						reply(nad.satukos())
 					}
 					break
-case 'blackpink':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (!isPrem) return reply(ind.premium())
-if (args.length < 1) return reply(`「❗」Contoh : ${prefix}blackpink Ramlan`)
-pink = body.slice(11)
-reply('「❗」Hah Blekping :v')
-lol = await getBuffer(`https://api.xteam.xyz/textpro/blackpink?text=${pink}&APIKEY=${XteamKey}`)
-baby.sendMessage(from, lol, image, {quoted: mek})
-break					
+					case 'blackpink':
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+					if (isLimit(sender)) return reply(nad.limitend(pusname))
+					if (args.length < 1) return reply(`「❗」Contoh : ${prefix}blackpink Ramlan`)
+					pink = body.slice(11)
+					reply('「❗」Hah Blekping :v')
+					lol = await getBuffer(`https://vinz.zeks.xyz/api/blackpink?text=${pink}`)
+					baby.sendMessage(from, lol, image, {quoted: mek})
+					await limitAdd(sender)
+					break					
                  case 'event':
-                  if (isBanned) return reply(ind.baned())                 
-					if (!isGroup) return reply(ind.groupo())
-					if (!isOwner) return reply(ind.ownerb())
+                  if (isBanned) return reply(nad.baned())                 
+					if (!isGroup) return reply(nad.groupo())
+					if (!isOwner) return reply(nad.ownerb())
 					if (args.length < 1) return reply('Ekhemm >_<')
 					if (Number(args[0]) === 1) {
 						if (isEventon) return reply('*FITUR EVENT SUDAH AKTIF BOS*')
 						event.push(from)
 						fs.writeFileSync('./database/group/event.json', JSON.stringify(event))
-						reply('*「SUKSES」 MENGAKTIFKAN EVENT DI GROUP*')
+						reply('*「 SUKSES 」MENGAKTIFKAN EVENT DI GROUP*')
 					} else if (Number(args[0]) === 0) {
 						event.splice(from, 1)
 						fs.writeFileSync('./database/group/event.json', JSON.stringify(event))
-						reply('*「SUKSES」 MEMATIKAN EVENT DI GROUP*')
+						reply('*「 SUKSES 」MEMATIKAN EVENT DI GROUP*')
 					} else {
-						reply(ind.satukos())
+						reply(nad.satukos())
 					}
 					break
                 case 'leveling':
-                if (!isGroup) return reply(ind.groupo())
-                if (!isGroupAdmins) return reply(ind.admin())
+                if (!isGroup) return reply(nad.groupo())
+                if (!isGroupAdmins) return reply(nad.admin())
                 if (args.length < 1) return reply('Ekhemm >_<')
                 if (args[0] === '1') {
                     if (isLevelingOn) return reply('*fitur level sudah aktif sebelum nya*')
                     _leveling.push(from)
                     fs.writeFileSync('./database/group/leveling.json', JSON.stringify(_leveling))
-                     reply(ind.lvlon())
+                     reply(nad.lvlon())
                 } else if (args[0] === '0') {
                     _leveling.splice(from, 1)
                     fs.writeFileSync('./database/group/leveling.json', JSON.stringify(_leveling))
-                     reply(ind.lvloff())
+                     reply(nad.lvloff())
                 } else {
-                    reply(ind.satukos())
+                    reply(nad.satukos())
                 }
 					break
 				case 'simih':
-                  if (isBanned) return reply(ind.baned())				
-					if (!isGroup) return reply(ind.groupo())
-					if (!isGroupAdmins) return reply(ind.admin())
+                  if (isBanned) return reply(nad.baned())				
+					if (!isGroup) return reply(nad.groupo())
+					if (!isGroupAdmins) return reply(nad.admin())
 					if (args.length < 1) return reply('Ekhemm >_<')
 					if (Number(args[0]) === 1) {
 						if (isSimi) return reply('*SUDAH AKTIF*')
 						samih.push(from)
 						fs.writeFileSync('./database/group/simi.json', JSON.stringify(samih))
-						reply('*「SUKSES」 MENGAKTIFKAN FITUR SIMI DI GROUP*')
+						reply('*「 SUKSES 」MENGAKTIFKAN FITUR SIMI DI GROUP*')
 					} else if (Number(args[0]) === 0) {
 						samih.splice(from, 1)
 						fs.writeFileSync('./database/group/simi.json', JSON.stringify(samih))
-						reply('*「SUKSES」 MEMATIKAN FITUR SIMI DI GROUP*')
+						reply('*「 SUKSES 」MEMATIKAN FITUR SIMI DI GROUP*')
 					} else {
-						reply(ind.satukos())
+						reply(nad.satukos())
 					}
 					break
 				case 'nsfw':
-                  if (isBanned) return reply(ind.baned())				
-					if (!isGroup) return reply(ind.groupo())
-					if (!isGroupAdmins) return reply(ind.admin())
+                  if (isBanned) return reply(nad.baned())				
+					if (!isGroup) return reply(nad.groupo())
+					if (!isGroupAdmins) return reply(nad.admin())
 					if (args.length < 1) return reply('Ekhem >_<')
 					if (Number(args[0]) === 1) {
 						if (isNsfw) return reply(' *sudah aktif*  !!')
 						nsfw.push(from)
 						fs.writeFileSync('./database/group/nsfw.json', JSON.stringify(nsfw))
-						reply('*「SUKSES」 MENGAKTIFKAN FITUR NSFW DI GROUP*')
+						reply('*「 SUKSES 」MENGAKTIFKAN FITUR NSFW DI GROUP*')
 					} else if (Number(args[0]) === 0) {
 						nsfw.splice(from, 1)
 						fs.writeFileSync('./database/group/nsfw.json', JSON.stringify(nsfw))
-						reply('*「SUKSES」 MEMATIKAN FITUR NSWF DI GROUP*')
+						reply('*「 SUKSES 」MEMATIKAN FITUR NSWF DI GROUP*')
 					} else {
-						reply(ind.satukos())
+						reply(nad.satukos())
 					}
 					break
                                 case 'antilinkgrup':
-                  if (isBanned) return reply(ind.baned())				
-					if (!isGroup) return reply(ind.groupo())
-					if (!isGroupAdmins) return reply(ind.admin())
-					if (!isBotGroupAdmins) return reply(ind.badmin())					
+                  if (isBanned) return reply(nad.baned())				
+					if (!isGroup) return reply(nad.groupo())
+					if (!isGroupAdmins) return reply(nad.admin())
+					if (!isBotGroupAdmins) return reply(nad.badmin())					
 					if (args.length < 1) return reply('ketik 1 untuk mengaktifkan')
 					if (Number(args[0]) === 1) {
 						if (isAntiLink) return reply('EMANG MATI?')
 						antilink.push(from)
 						fs.writeFileSync('./database/group/antilink.json', JSON.stringify(antilink))
-						reply('「SUKSES」MENGAKTIFKAN ANTI LINK DI GROUP')
+						reply('「 SUKSES 」MENGAKTIFKAN ANTI LINK DI GROUP')
 						baby.sendMessage(from,`ALLERT!!! Jika bukan admin jangan kirim link grup`, text)
 					} else if (Number(args[0]) === 0) {
 						if (!isAntiLink) return reply('EMANG AKTIF?')
 						var ini = anti.botLangsexOf(from)
 						antilink.splice(ini, 1)
 						fs.writeFileSync('./database/group/antilink.json', JSON.stringify(antilink))
-						reply('「SUKSES」MEMATIKAN ANTI LINK DI GROUP')
+						reply('「 SUKSES 」MEMATIKAN ANTI LINK DI GROUP')
 					} else {
 						reply('1 untuk mengaktifkan, 0 untuk menonaktifkan')
 					}
 					break					
 					
 				case 'admin':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (isLimit(sender)) return reply(ind.limitend(pusname))				
-					if (!isGroup) return reply(ind.groupo())
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))			
+					if (!isGroup) return reply(nad.groupo())
 					teks = `*DAFTAR ATASAN GROUP* _${groupMetadata.subject}_\n*TOTAL* : ${groupAdmins.length}\n\n`
 					no = 0
 					for (let admon of groupAdmins) {
@@ -1406,13 +1490,14 @@ break
 						teks += `[${no.toString()}] @${admon.split('@')[0]}\n`
 					}
 					mentions(teks, groupAdmins, true)
+					await limitAdd(sender)
 					break
 					case 'grup':
 					case 'group':
-                  if (isBanned) return reply(ind.baned())					
-					if (!isGroup) return reply(ind.groupo())
-					if (!isGroupAdmins) return reply(ind.admin())
-					if (!isBotGroupAdmins) return reply(ind.badmin())
+                  if (isBanned) return reply(nad.baned())					
+					if (!isGroup) return reply(nad.groupo())
+					if (!isGroupAdmins) return reply(nad.admin())
+					if (!isBotGroupAdmins) return reply(nad.badmin())
 					if (args[0] === 'buka') {
 					    reply(`*BERHASIL MEMBUKA GROUP*`)
 						baby.groupSettingChange(from, GroupSettingChange.messageSend, false)
@@ -1422,12 +1507,11 @@ break
 					}
 					break
 				case 'add':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (isLimit(sender)) return reply(ind.limitend(pusname))				
-					if (!isGroup) return reply(ind.groupo())
-					if (!isGroupAdmins) return reply(ind.admin())
-					if (!isBotGroupAdmins) return reply(ind.badmin())
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())	
+					if (!isGroup) return reply(nad.groupo())
+					if (!isGroupAdmins) return reply(nad.admin())
+					if (!isBotGroupAdmins) return reply(nad.badmin())
 					if (args.length < 1) return reply('Yang mau di add siapa?')
 					if (args[0].startsWith('08')) return reply('Gunakan kode bahasa kak')
 					try {
@@ -1439,12 +1523,11 @@ break
 					}
 					break
 			     	case 'kick':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (isLimit(sender)) return reply(ind.limitend(pusname))			     	
-					if (!isGroup) return reply(ind.groupo())
-					if (!isGroupAdmins) return reply(ind.admin())
-					if (!isBotGroupAdmins) return reply(ind.badmin())
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())	     	
+					if (!isGroup) return reply(nad.groupo())
+					if (!isGroupAdmins) return reply(nad.admin())
+					if (!isBotGroupAdmins) return reply(nad.badmin())
 					if (mek.message.extendedTextMessage === undefined || mek.message.extendedTextMessage === null) return reply('𝗧𝗮𝗴 𝘁𝗮𝗿𝗴𝗲𝘁 ??𝗮𝗻𝗴 𝗶𝗻𝗴𝗶𝗻 𝗱𝗶 𝘁𝗲𝗻𝗱𝗮𝗻𝗴!')
 					mentioned = mek.message.extendedTextMessage.contextInfo.mentionedJid
 					if (mentioned.length > 1) {
@@ -1461,11 +1544,11 @@ break
 					}
 					break
                 case 'hidetag':
-                  if (isBanned) return reply(ind.baned())                
-                if (!isRegistered) return reply(ind.noregis())
-                if (isLimit(sender)) return reply(ind.limitend(pusname))
-					if (!isGroup) return reply(ind.groupo())
-					if (!isGroupAdmins) return reply(ind.admin())
+                  if (isBanned) return reply(nad.baned())                
+                if (!isRegistered) return reply(nad.noregis())
+                if (isLimit(sender)) return reply(nad.limitend(pusname))
+					if (!isGroup) return reply(nad.groupo())
+					if (!isGroupAdmins) return reply(nad.admin())
 					var value = body.slice(9)
 					var group = await baby.groupMetadata(from)
 					var member = group['participants']
@@ -1482,13 +1565,13 @@ break
 					await limitAdd(sender)
 					break					
                 case 'level':
-                  if (isBanned) return reply(ind.baned())                
-                if (!isRegistered) return reply(ind.noregis())
-                if (!isLevelingOn) return reply(ind.lvlnoon())
-                if (!isGroup) return reply(ind.groupo())
+                  if (isBanned) return reply(nad.baned())                
+                if (!isRegistered) return reply(nad.noregis())
+                if (!isLevelingOn) return reply(nad.lvlnoon())
+                if (!isGroup) return reply(nad.groupo())
                 const userLevel = getLevelingLevel(sender)
                 const userXp = getLevelingXp(sender)
-                if (userLevel === undefined && userXp === undefined) return reply(ind.lvlnul())
+                if (userLevel === undefined && userXp === undefined) return reply(nad.lvlnul())
                 const requiredXp = 5000 * (Math.pow(2, userLevel) - 1)
                 resul = `┏━━━━━━♡ *LEVEL* ♡━━━━━━━┓\n┃╭───────────────────\n┃│➸ NAMA : ${pushname}\n┃│➸ NOMOR : wa.me/${sender.split("@")[0]}\n┃│➸ XP : ${userXp}/${requiredXp}\n┃│➸ LEVEL : ${userLevel}\n┃╰───────────────────\n┗━━━━━━━━━━━━━━━━━━━━┛`
                baby.sendMessage(from, resul, text, { quoted: mek})
@@ -1498,23 +1581,23 @@ break
                     })
 					break
                  case 'linkgrup':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (isLimit(sender)) return reply(ind.limitend(pusname))                
-				    if (!isGroup) return reply(ind.groupo())
-				    if (isLimit(sender)) return reply(ind.limitend(pusname))
-				    if (!isBotGroupAdmins) return reply(ind.badmin())
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))                
+				    if (!isGroup) return reply(nad.groupo())
+				    if (isLimit(sender)) return reply(nad.limitend(pusname))
+				    if (!isBotGroupAdmins) return reply(nad.badmin())
 				    linkgc = await baby.groupInviteCode (from)
 				    yeh = `https://chat.whatsapp.com/${linkgc}\n\nlink Group *${groupName}*`
 				    baby.sendMessage(from, yeh, text, {quoted: mek})
 			        await limitAdd(sender)
 					break
 				case 'tagall':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (isLimit(sender)) return reply(ind.limitend(pusname))		
-					if (!isGroup) return reply(ind.groupo())
-					if (!isGroupAdmins) return reply(ind.admin())
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))		
+					if (!isGroup) return reply(nad.groupo())
+					if (!isGroupAdmins) return reply(nad.admin())
 					members_id = []
 					teks = (args.length > 1) ? body.slice(8).trim() : ''
 					teks += '\n\n'
@@ -1523,28 +1606,29 @@ break
 						members_id.push(mem.jid)
 					}
 					mentions(teks, members_id, true)
+					await limitAdd(sender)
 					break
            case 'setname':
-                if (!isRegistered) return reply(ind.noregis())           
-                if (!isGroup) return reply(ind.groupo())
-			    if (!isGroupAdmins) return reply(ind.admin())
-				if (!isBotGroupAdmins) return reply(ind.badmin())
+                if (!isRegistered) return reply(nad.noregis())           
+                if (!isGroup) return reply(nad.groupo())
+			    if (!isGroupAdmins) return reply(nad.admin())
+				if (!isBotGroupAdmins) return reply(nad.badmin())
                 baby.groupUpdateSubject(from, `${body.slice(9)}`)
-                baby.sendMessage(from, '⟪ SUKSES ⟫ Mengubah Nama Grup', text, {quoted: mek})
+                baby.sendMessage(from, '「 SUKSES 」Mengubah Nama Grup', text, {quoted: mek})
 					break
                 case 'setdesc':
-                if (!isRegistered) return reply(ind.noregis())                
-                if (!isGroup) return reply(ind.groupo())
-			    if (!isGroupAdmins) return reply(ind.admin())
-				if (!isBotGroupAdmins) return reply(ind.badmin())
+                if (!isRegistered) return reply(nad.noregis())                
+                if (!isGroup) return reply(nad.groupo())
+			    if (!isGroupAdmins) return reply(nad.admin())
+				if (!isBotGroupAdmins) return reply(nad.badmin())
                 baby.groupUpdateDescription(from, `${body.slice(9)}`)
-                baby.sendMessage(from, '⟪ SUKSES ⟫ Mengubah Desk Grup', text, {quoted: mek})
+                baby.sendMessage(from, '*「 SUKSES 」Mengubah Desk Grup', text, {quoted: mek})
 					break
            case 'demote':
-                if (!isRegistered) return reply(ind.noregis())           
-					if (!isGroup) return reply(ind.groupo())
-					if (!isGroupAdmins) return reply(ind.admin())
-					if (!isBotGroupAdmins) return reply(ind.badmin())
+                if (!isRegistered) return reply(nad.noregis())           
+					if (!isGroup) return reply(nad.groupo())
+					if (!isGroupAdmins) return reply(nad.admin())
+					if (!isBotGroupAdmins) return reply(nad.badmin())
 					if (mek.message.extendedTextMessage === undefined || mek.message.extendedTextMessage === null) return reply('𝗧𝗮𝗴 𝘁𝗮𝗿𝗴𝗲𝘁 𝘆𝗮𝗻𝗴 𝗶𝗻𝗴𝗶𝗻 𝗱𝗶 𝘁𝗲𝗻𝗱𝗮𝗻𝗴!')
 					mentioned = mek.message.extendedTextMessage.contextInfo.mentionedJid
 					if (mentioned.length > 1) {
@@ -1561,10 +1645,10 @@ break
 					}
 					break
 				case 'promote':
-                if (!isRegistered) return reply(ind.noregis())				
-					if (!isGroup) return reply(ind.groupo())
-					if (!isGroupAdmins) return reply(ind.admin())
-					if (!isBotGroupAdmins) return reply(ind.badmin())
+                if (!isRegistered) return reply(nad.noregis())				
+					if (!isGroup) return reply(nad.groupo())
+					if (!isGroupAdmins) return reply(nad.admin())
+					if (!isBotGroupAdmins) return reply(nad.badmin())
 					if (mek.message.extendedTextMessage === undefined || mek.message.extendedTextMessage === null) return reply('𝗧𝗮𝗴 ??𝗮??𝗴𝗲𝘁 𝘆𝗮𝗻𝗴 𝗶𝗻𝗴𝗶𝗻 𝗱𝗶 𝘁𝗲𝗻𝗱𝗮𝗻𝗴!')
 					mentioned = mek.message.extendedTextMessage.contextInfo.mentionedJid
 					if (mentioned.length > 1) {
@@ -1580,30 +1664,11 @@ break
 						baby.groupMakeAdmin(from, mentioned)
 					}
 					break
-				case 'delete':
-                if (!isRegistered) return reply(ind.noregis())				
-					if (!isGroup) return reply(ind.groupo())
-					if (!isGroupAdmins) return reply(ind.admin())
-					if (!isBotGroupAdmins) return reply(ind.badmin())
-					if (mek.message.extendedTextMessage === undefined || mek.message.extendedTextMessage === null) return reply('Tag target yang ingin di jadi admin!')
-					mentioned = mek.message.extendedTextMessage.contextInfo.mentionedJid
-					if (mentioned.length > 1) {
-						teks = 'Perintah di terima, hapus pesan :\n'
-						for (let _ of mentioned) {
-							teks += `@${_[0].split('@')[0]}\n`
-						}
-						mentions(teks, mentioned, true)
-						baby.deleteMessage(from, mentioned)
-					} else {
-						mentions(`Perintah di terima, hapus pesan : @${mentioned[0].split('@')[0]}`, mentioned, true)
-						baby.deleteMessage(from, mentioned)
-					}
-					break
 				case 'hedsot':
-                if (!isRegistered) return reply(ind.noregis())				
-					if (!isGroup) return reply(ind.groupo())
-					if (!isGroupAdmins) return reply(ind.admin())
-					if (!isBotGroupAdmins) return reply(ind.badmin())
+                if (!isRegistered) return reply(nad.noregis())				
+					if (!isGroup) return reply(nad.groupo())
+					if (!isGroupAdmins) return reply(nad.admin())
+					if (!isBotGroupAdmins) return reply(nad.badmin())
 					if (mek.message.extendedTextMessage === undefined || mek.message.extendedTextMessage === null) return reply('Tag target yang ingin di tendang!')
 					mentioned = mek.message.extendedTextMessage.contextInfo.mentionedJid
 					if (mentioned.length > 1) {
@@ -1621,10 +1686,10 @@ break
 						}
 					break
                  case 'fitnah':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (isLimit(sender)) return reply(ind.limitend(pusname))				
-					if (!isGroup) return reply(ind.groupo())                 
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))				
+					if (!isGroup) return reply(nad.groupo())                 
 				if (args.length < 1) return reply(`Gini kak : ${prefix}fitnah [@tag&pesan&balasanbot]\n\nContoh : ${prefix}fitnah @tagmember&hai&hai juga`)
 				var gh = body.slice(8)
 				mentioned = mek.message.extendedTextMessage.contextInfo.mentionedJid
@@ -1632,50 +1697,66 @@ break
 					var target = gh.split("&")[1];
 					var bot = gh.split("&")[2];
 					baby.sendMessage(from, `${bot}`, text, {quoted: { key: { fromMe: false, participant: `${mentioned}`, ...(from ? { remoteJid: from } : {}) }, message: { conversation: `${target}` }}})
+					await limitAdd(sender)
 					break
                       case 'leave':
-                      if (isBanned) return reply(ind.baned())      
-                      if (!isRegistered) return reply(ind.noregis())           
-                      if (!isGroup) return reply(ind.groupo())
-                      if (!isGroupAdmins) return reply(ind.admin())
+                      if (isBanned) return reply(nad.baned())      
+                      if (!isRegistered) return reply(nad.noregis())           
+                      if (!isGroup) return reply(nad.groupo())
+                      if (!isGroupAdmins) return reply(nad.admin())
                       setTimeout( () => {
                       baby.groupLeave (from) 
                       }, 2000)
                       setTimeout( () => {
                       baby.updatePresence(from, Presence.composing) 
-                      if (!isRegistered) return reply(ind.noregis())
-                      if (isBanned) return reply(ind.baned())   
+                      if (!isRegistered) return reply(nad.noregis())
+                      if (isBanned) return reply(nad.baned())   
                       baby.sendMessage(from, 'Aku pamit kak:)', text)
                       }, 0)
                       break																									
 /*
 ]=====> DOWNLOAD MENU <=====[
 */
-                     case 'play':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (isLimit(sender)) return reply(ind.limitend(pusname)) 
-                reply(ind.wait())
-                anu = await fetchJson(`https://api.vhtear.com/ytmp3?query=${body.slice(6)}&apikey=${VhtearKey}`)
-               if (anu.error) return reply(anu.error)
-                 infomp3 = `*「❗」Lagu Ditemukan*\n➸ Judul : ${anu.result.title}\n➸ Durasi : ${anu.result.duration}\n➸ Size : ${anu.result.size}\n\n*[WAIT] Proses Dumlu Yakan*`
-                buffer = await getBuffer(anu.result.image)
-                lagu = await getBuffer(anu.result.mp3)
-                baby.sendMessage(from, buffer, image, {quoted: mek, caption: infomp3})
-                baby.sendMessage(from, lagu, audio, {mimetype: 'audio/mp4', quoted: mek})
-                break			
+case 'play':
+     if (isBanned) return reply(nad.baned())
+	 if (!isRegistered) return reply(nad.noregis())
+if (!isPrem) return reply(nad.premium())
+     reply(nad.wait())
+     anu = await fetchJson(`https://api.xteam.xyz/dl/play?lagu=${body.slice(6)}&APIKEY=${XteamKey}`)
+     if (anu.error) return reply(anu.error)
+     infomp3 = `*「❗」Lagu Ditemukan「❗」*\n➸ Judul : ${anu.judul}\n➸ Size : ${anu.size}\n\n*[WAIT] Proses Dumlu Yakan*`
+     bumfer = await getBuffer(anu.thumbnail)
+     lamgu = await getBuffer(anu.url)
+     baby.sendMessage(from, bumfer, image, {quoted: mek, caption: infomp3})
+     baby.sendMessage(from, lamgu, audio, {mimetype: 'audio/mp4', quoted: mek})
+break
+case 'ytmp3':
+     if (isBanned) return reply(nad.baned())
+	 if (!isRegistered) return reply(nad.noregis())
+	 if (isLimit(sender)) return reply(nad.limitend(pusname)) 
+     reply(nad.wait())
+     anu = await fetchJson(`https://st4rz.herokuapp.com/api/yta2?url=${body.slice(7)}`)
+     if (anu.error) return reply(anu.error)
+     ingfomp3 = `*「❗」Lagu Ditemukan「❗」*\n➸ Judul : ${anu.title}\n\n*[WAIT] Proses Dumlu Yakan*`
+     buffer = await getBuffer(anu.thumb)
+     lagu = await getBuffer(anu.result)
+     baby.sendMessage(from, buffer, image, {quoted: mek, caption: ingfomp3})
+     baby.sendMessage(from, lagu, audio, {mimetype: 'audio/mp4', quoted: mek})
+     await limitAdd(sender)
+break
+
 /*
 ]=====> LIMIT MENU <=====[
 */
 				case 'limit':
-				                  if (isBanned) return reply(ind.baned())
-				   if (!isRegistered) return reply(ind.noregis())
+				                  if (isBanned) return reply(nad.baned())
+				   if (!isRegistered) return reply(nad.noregis())
 				   checkLimit(sender)
 					break
 				case 'transfer':
-                  if (isBanned) return reply(ind.baned())				
-				if (!isRegistered) return reply(ind.noregis())
-				if (!q.includes('|')) return  reply(ind.wrongf())
+                  if (isBanned) return reply(nad.baned())				
+				if (!isRegistered) return reply(nad.noregis())
+				if (!q.includes('|')) return  reply(nad.wrongf())
                 const tujuan = q.substring(0, q.indexOf('|') - 1)
                 const jumblah = q.substring(q.lastIndexOf('|') + 1)
                 if (checkATMuser(sender) < jumblah) return reply(`uang mu tidak mencukupi untuk melakukan transfer`)
@@ -1688,14 +1769,14 @@ break
                 reply(`*⟪ SUKSES ⟫*\n\npengiriman uang berhasil\n➸ dari : +${sender.split("@")[0]}\n➸ ke : +${tujuan}\n➸ jumlah transfer : ${jumblah}\n➸ pajak : ${fee}`)
                 break
 				case 'atm':
-                  if (isBanned) return reply(ind.baned())				
-				if (!isRegistered) return reply(ind.noregis())
+                  if (isBanned) return reply(nad.baned())				
+				if (!isRegistered) return reply(nad.noregis())
 				const kantong = checkATMuser(sender)
-				reply(ind.uangkau(pushname, sender, kantong))
+				reply(nad.uangkau(pushname, sender, kantong))
 				break
 				case 'buylimit':
-                  if (isBanned) return reply(ind.baned())				
-				if (!isRegistered) return reply(ind.noregis())
+                  if (isBanned) return reply(nad.baned())				
+				if (!isRegistered) return reply(nad.noregis())
 				payout = body.slice(10)
 				const koinPerlimit = 1000
 				const total = koinPerlimit * payout
@@ -1710,13 +1791,13 @@ break
 ]=====> RANDOM MENU <=====[
 */
                 case 'pokemon':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (isLimit(sender)) return reply(ind.limitend(pusname))
-                   if (!isGroup) return reply(ind.groupo())
-                   if (!isNsfw) return reply(ind.nsfwoff())
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
+                   if (!isGroup) return reply(nad.groupo())
+                   if (!isNsfw) return reply(nad.nsfwoff())
 					anu = await fetchJson(`https://api.fdci.se/rep.php?gambar=pokemon`, {method: 'get'})
-					reply(ind.wait())
+					reply(nad.wait())
 					var n = JSON.parse(JSON.stringify(anu));
 					var nimek =  n[Math.floor(Math.random() * n.length)];
 					pok = await getBuffer(nimek)
@@ -1724,13 +1805,13 @@ break
 					await limitAdd(sender)
 					break
                 case 'anjing':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (isLimit(sender)) return reply(ind.limitend(pusname))
-                   if (!isGroup) return reply(ind.groupo())
-                   if (!isNsfw) return reply(ind.nsfwoff())
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
+                   if (!isGroup) return reply(nad.groupo())
+                   if (!isNsfw) return reply(nad.nsfwoff())
 					anu = await fetchJson(`https://api.fdci.se/rep.php?gambar=anjing`, {method: 'get'})
-					reply(ind.wait())
+					reply(nad.wait())
 					var n = JSON.parse(JSON.stringify(anu));
 					var nimek =  n[Math.floor(Math.random() * n.length)];
 					pok = await getBuffer(nimek)
@@ -1738,30 +1819,38 @@ break
 					await limitAdd(sender)
 					break
 					case 'neko':
-                if (!isRegistered) return reply(ind.noregis())
-                if (isLimit(sender)) return reply(ind.limitend(pusname))
-						res = await fetchJson(`https://tobz-api.herokuapp.com/api/nekonime?apikey=${TobzKey}`, {method: 'get'})
+					if (isBanned) return reply(nad.baned())
+                if (!isRegistered) return reply(nad.noregis())
+                if (isLimit(sender)) return reply(nad.limitend(pusname))
+						res = await fetchJson(`https://tobz-api.herokuapp.com/api/nekonime?apikey=BotWeA`, {method: 'get'})
 						buffer = await getBuffer(res.result)
 						baby.sendMessage(from, buffer, image, {quoted: mek, caption: 'Nih nekonime mu >_<'})
 					await limitAdd(sender)
 					break
-                case 'nekonime':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (isLimit(sender)) return reply(ind.limitend(pusname))
-					gatauda = body.slice(10)
-					reply(ind.wait())
-					anu = await fetchJson(`https://api.vhtear.com/randomnekonime&apikey=${VhtearKey}`, {method: 'get'})
-					buffer = await getBuffer(anu.result.result)
-					baby.sendMessage(from, buffer, image, {quoted: mek})
+					case 'nsfwneko':
+					if (isBanned) return reply(nad.baned())
+                if (!isRegistered) return reply(nad.noregis())
+                if (isLimit(sender)) return reply(nad.limitend(pusname))
+						nikko = await getBuffer(`https://api.xteam.xyz/randomimage/nsfwneko?APIKEY=${XteamKey}`, {method: 'get'})
+						baby.sendMessage(from, nikko, image, {quoted: mek, caption: 'Jangan Comly >_<'})
 					await limitAdd(sender)
-					break
+					break					
+                case 'nekonime':
+                if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
+					reply(nad.wait())
+					anu = await fetchJson(`https://st4rz.herokuapp.com/api/nekonime`)
+					vvibu = await getBuffer(anu.result)
+					baby.sendMessage(from, vvibu, image, {quoted: mek, caption: 'VVibu AbiZzzz :v'})
+					await limitAdd(sender)
+				break
                 case 'kpop':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (isLimit(sender)) return reply(ind.limitend(pusname))
-                                        reply(ind.wait())
-                                        anu = await fetchJson(`https://tobz-api.herokuapp.com/api/randomkpop?apikey=${TobzKey}`, {method: 'get'})
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
+                                        reply(nad.wait())
+                                        anu = await fetchJson(`https://tobz-api.herokuapp.com/api/randomkpop?apikey=BotWeA`, {method: 'get'})
                                         if (anu.error) return reply(anu.error)
                                         buffer = await getBuffer(anu.result)
                                         randomkpop = `*PLASTIQUE*`
@@ -1769,53 +1858,43 @@ break
                                         await limitAdd(sender)
                                         break
                 case 'husbu':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (isLimit(sender)) return reply(ind.limitend(pusname))
-                   if (!isGroup) return reply(ind.groupo())
-                   if (!isNsfw) return reply(ind.nsfwoff())
-						res = await fetchJson(`https://tobz-api.herokuapp.com/api/husbu?apikey=${TobzKey}`)
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
+                   if (!isGroup) return reply(nad.groupo())
+                   if (!isNsfw) return reply(nad.nsfwoff())
+						res = await fetchJson(`https://tobz-api.herokuapp.com/api/husbu?apikey=BotWeA`)
 						buffer = await getBuffer(res.image)
 						baby.sendMessage(from, buffer, image, {quoted: mek, caption: '>_<'})
 					await limitAdd(sender)
-					break
-                case 'loli':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (isLimit(sender)) return reply(ind.limitend(pusname))
-					gatauda = body.slice(6)
-					reply(ind.wait())
-					anu = await fetchJson(`https://api.vhtear.com/randomloli&apikey=${VhtearKey}`, {method: 'get'})
-					buffer = await getBuffer(anu.result.result)
-					baby.sendMessage(from, buffer, image, {quoted: mek})
-					await limitAdd(sender)
-					break										
-					case 'wibu':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (isLimit(sender)) return reply(ind.limitend(pusname))
-						data = await fetchJson(`https://api.vhtear.com/randomwibu&apikey=${VhtearKey}`)
-						buffer = await getBuffer(data.result.foto)
-						baby.sendMessage(from, buffer, image, {quoted: mek, caption: '>_<'})
-					await limitAdd(sender)
-					break
+					break									
+				case 'wibu':
+                if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
+				data = await fetchJson(`https://st4rz.herokuapp.com/api/waifu`)
+				buffer = await getBuffer(data.image)
+				baby.sendMessage(from, buffer, image, {quoted: mek, caption: 'VVibu AbiZzz :v'})
+				await limitAdd(sender)
+				break
                 case 'darkjokes':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (isLimit(sender)) return reply(ind.limitend(pusname))   
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))   
 				 data = fs.readFileSync('./src/darkjokes.js');
                  jsonData = JSON.parse(data);
                  randIndex = Math.floor(Math.random() * jsonData.length);
                  randKey = jsonData[randIndex];
                 hasil = await getBuffer(randKey.result)
                 sendImage(hasil, mek, '*GELAP BOS :V*')
+                await limitAdd(sender)
 				break										
 /*
 ]=====> OTHER MENU <=====[
 */				
             	case 'mining':
-                      if (!isRegistered) return reply(ind.noregis())
-                      if (isLimit(sender)) return reply(ind.limitend(pushname))
+                      if (!isRegistered) return reply(nad.noregis())
+                      if (isLimit(sender)) return reply(nad.limitend(pushname))
                       if (!isEventon) return reply(`maaf ${pushname} event mining tidak di aktifkan sama owner Ramlan`)
                       if (isOwner) {
                       const one = 999999999
@@ -1830,32 +1909,32 @@ break
                     await limitAdd(sender)
 					break
                 case 'moddroid':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (!isPrem) return reply(ind.premium())
-			data = await fetchJson(`https://tobz-api.herokuapp.com/api/moddroid?q=${body.slice(10)}&apikey=${TobzKey}`)
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (!isPrem) return reply(nad.premium())
+			data = await fetchJson(`https://tobz-api.herokuapp.com/api/moddroid?q=${body.slice(10)}&apikey=BotWeA`)
 			hepi = data.result[0] 
 			teks = `*➸ Nama*: ${data.result[0].title}\n*➸ publisher*: ${hepi.publisher}\n*➸ mod info:* ${hepi.mod_info}\n*➸ size*: ${hepi.size}\n*➸ latest version*: ${hepi.latest_version}\n*➸ genre*: ${hepi.genre}\n*➸ link:* ${hepi.link}\n*➸ download*: ${hepi.download}`
 			buffer = await getBuffer(hepi.image)
 			baby.sendMessage(from, buffer, image, {quoted: mek, caption: `${teks}`})
 			break
 			case 'happymod':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (!isPrem) return reply(ind.premium())
-			data = await fetchJson(`https://tobz-api.herokuapp.com/api/happymod?q=${body.slice(10)}&apikey=${TobzKey}`)
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (!isPrem) return reply(nad.premium())
+			data = await fetchJson(`https://tobz-api.herokuapp.com/api/happymod?q=${body.slice(10)}&apikey=BotWeA`)
 			hupo = data.result[0] 
 			teks = `*➸ Nama*: ${data.result[0].title}\n*➸ version*: ${hupo.version}\n*➸ size:* ${hupo.size}\n*➸ root*: ${hupo.root}\n*➸ purchase*: ${hupo.price}\n*➸ link*: ${hupo.link}\n*➸ download*: ${hupo.download}`
 			buffer = await getBuffer(hupo.image)
 			baby.sendMessage(from, buffer, image, {quoted: mek, caption: `${teks}`})
 			break
 					case 'pinterest':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (isLimit(sender)) return reply(ind.limitend(pusname))
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
 					baby.updatePresence(from, Presence.composing) 
 					data = await fetchJson(`https://api.fdci.se/rep.php?gambar=${body.slice(11)}`, {method: 'get'})
-					reply(ind.wait())
+					reply(nad.wait())
 					n = JSON.parse(JSON.stringify(data));
 					nimek =  n[Math.floor(Math.random() * n.length)];
 					pok = await getBuffer(nimek)
@@ -1863,9 +1942,9 @@ break
 					await limitAdd(sender)
 					break 
                 case 'beritahoax':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (isLimit(sender)) return reply(ind.limitend(pusname))
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
                     baby.updatePresence(from, Presence.composing) 
 					data = await fetchJson(`https://docs-jojo.herokuapp.com/api/infohoax`, {method: 'get'})
 					teks = '♡───────────♡\n'
@@ -1876,9 +1955,9 @@ break
 					await limitAdd(sender)
 					break
 					case 'brainly':
-	                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (isLimit(sender)) return reply(ind.limitend(pusname))
+	                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
                     brien = body.slice(9)
 					brainly(`${brien}`).then(res => {
 					teks = '♡───────────♡\n'
@@ -1893,7 +1972,7 @@ break
 				case 'info':
 					me = baby.user
 					uptime = process.uptime()
-					teks = `*➸ Nama bot* : ${me.name}\n*➸ OWNER* : 𝗥𝗮𝗺𝗹𝗮𝗻 𝗜𝗗\n*➸ AUTHOR* : ${ownerName}\n*➸ Nomor Bot* : @${me.jid.split('@')[0]}\n*➸ Prefix* : ${prefix}\n*➸ Total Block Contact* : ${blocked.length}\n*➸ The bot is active on* : ${kyun(uptime)}`
+					teks = `*➸ Nama bot* : ${me.name}\n*➸ OWNER* : ${ownerName}\n*➸ AUTHOR* : 𝗥𝗮𝗺𝗹𝗮𝗻 𝗜𝗗\n*➸ Nomor Bot* : @${me.jid.split('@')[0]}\n*➸ Prefix* : ${prefix}\n*➸ Total Block Contact* : ${blocked.length}\n*➸ The bot is active on* : ${kyun(uptime)}`
 					buffer = await getBuffer(me.imgUrl)
 					baby.sendMessage(from, buffer, image, {caption: teks, contextInfo:{mentionedJid: [me.jid]}})
 					break
@@ -1904,20 +1983,20 @@ break
                   baby.sendMessage(from, 'Tuh Nomor Pacarku >_<, Ehh Ownerku mksdnya:v',MessageType.text, { quoted: mek} )
 					break
 case 'hartatahta':
-if (isBanned) return reply(ind.baned())
-if (!isRegistered) return reply(ind.noregis())
-if (isLimit(sender)) return reply(ind.limitend(pusname))
-if (args.length < 1) return reply(`「❗」Contoh : ${prefix}hartatahta botwea`)
+if (isBanned) return reply(nad.baned())
+if (!isRegistered) return reply(nad.noregis())
+if (isLimit(sender)) return reply(nad.limitend(pusname))
+if (args.length < 1) return reply(`「❗」Contoh : ${prefix}hartatahta Ramlan`)
 har = body.slice(12)
 reply('「❗」Hirti Tihti Tai Anjg :v')
-buffer = await getBuffer(`https://api.vhtear.com/hartatahta?text=${har}&apikey=${VhtearKey}`)
+buffer = await getBuffer(`https://api.zeks.xyz/api/hartatahta?text=${har}&apikey=apivinz`)
 baby.sendMessage(from, buffer, image, {quoted: mek})
 await limitAdd(sender)
 break
 case 'cloudtext':
-                  if (isBanned) return reply(ind.baned())
-				if (!isRegistered) return reply(ind.noregis())
-				if (!isPrem) return reply(ind.premium())
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (!isPrem) return reply(nad.premium())
 if (args.length < 1) return reply(`「❗」Contoh : ${prefix}cloudtext Ramlan`)
 cloud = body.slice(11)
 reply('「❗」Bentar Bro Gw Terbang dumlu yakan')
@@ -1929,14 +2008,14 @@ break
 ]=====> OWNER MENU <=====[
 */
                 case 'addprem':
-					if (!isOwner) return reply(ind.ownerb())
+					if (!isOwner) return reply(nad.ownerb())
 					addp = body.slice(10)
 					premium.push(`${addp}@s.whatsapp.net`)
 					fs.writeFileSync('./database/user/premium.json', JSON.stringify(premium))
 					reply(`Berhasil Menambahkan ${addp} Ke Daftar Premium`)
 					break
 				case 'dellprem':
-					if (!isOwner) return reply(ind.ownerb())
+					if (!isOwner) return reply(nad.ownerb())
 					oh = body.slice(11)
 					delp = premium.indexOf(oh)
 					premium.splice(delp, 1)
@@ -1945,7 +2024,7 @@ break
 					break					
 				case 'bc':
 					baby.updatePresence(from, Presence.composing) 
-				     if (!isOwner) return reply(ind.ownerb())
+				     if (!isOwner) return reply(nad.ownerb())
 					if (args.length < 1) return reply('.......')
 					anu = await baby.chats.all()
 					if (isMedia && !mek.message.videoMessage || isQuotedImage) {
@@ -1963,7 +2042,7 @@ break
 					}
 					break
 				case 'bcgc':
-				     if (!isOwner) return reply(ind.ownerb())
+				     if (!isOwner) return reply(nad.ownerb())
 					if (args.length < 1) return reply('Teksnya mana bosku >_<')
 					anu = await groupMembers
 					nom = mek.participant
@@ -1982,7 +2061,7 @@ break
 					}
 					break
 					case 'setreply':
-					if (!isOwner) return reply(ind.ownerb())
+					if (!isOwner) return reply(nad.ownerb())
                     baby.updatePresence(from, Presence.composing) 
 					if (args.length < 1) return
 					cr = body.slice(10)
@@ -1991,35 +2070,35 @@ break
 					break
 				case 'setprefix':
 					if (args.length < 1) return
-					if (!isOwner) return reply(ind.ownerb())
+					if (!isOwner) return reply(nad.ownerb())
 					prefix = args[0]
 					reply(`*「 SUKSES 」* Prefix jadi ➸ : ${prefix}`)
 					break
 				case 'clearall':
-					if (!isOwner) return reply(ind.ownerb())
+					if (!isOwner) return reply(nad.ownerb())
 					anu = await baby.chats.all()
 					baby.setMaxListeners(25)
 					for (let _ of anu) {
 						baby.deleteChat(_.jid)
 					}
-					reply(ind.clears())
+					reply(nad.clears())
 					break
 			       case 'block':
 				 baby.updatePresence(from, Presence.composing) 
 				 baby.chatRead (from)
-					if (!isGroup) return reply(ind.groupo())
-					if (!isOwner) return reply(ind.ownerb())
+					if (!isGroup) return reply(nad.groupo())
+					if (!isOwner) return reply(nad.ownerb())
 					baby.blockUser (`${body.slice(7)}@c.us`, "add")
 					baby.sendMessage(from, `perintah Diterima, memblokir ${body.slice(7)}@c.us`, text)
 					break
                     case 'unblock':
-					if (!isGroup) return reply(ind.groupo())
-					if (!isOwner) return reply(ind.ownerb())
+					if (!isGroup) return reply(nad.groupo())
+					if (!isOwner) return reply(nad.ownerb())
 				    baby.blockUser (`${body.slice(9)}@c.us`, "remove")
 					baby.sendMessage(from, `Perintah Diterima, membuka ${body.slice(9)}@c.us`, text)
 					break   				
 					case 'setppbot':
-					if (!isOwner) return reply(ind.ownerb())
+					if (!isOwner) return reply(nad.ownerb())
 				    baby.updatePresence(from, Presence.composing) 
 					if (!isQuotedImage) return reply(`Kirim gambar dengan caption ${prefix}setbotpp atau tag gambar yang sudah dikirim`)
 					enmedia = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
@@ -2028,8 +2107,8 @@ break
 					reply('Makasih profil barunya bosku😗')
 					break
 				case 'clone':
-					if (!isGroup) return reply(ind.groupo())
-					if (!isOwner) return reply(ind.ownerg())
+					if (!isGroup) return reply(nad.groupo())
+					if (!isOwner) return reply(nad.ownerg())
 					if (args.length < 1) return reply(' *TAG YANG MAU DI CLONE!!!* ')
 					if (mek.message.extendedTextMessage === undefined || mek.message.extendedTextMessage === null) return reply('Tag cvk')
 					mentioned = mek.message.extendedTextMessage.contextInfo.mentionedJid[0]
@@ -2040,64 +2119,129 @@ break
 						baby.updateProfilePicture(botNumber, buffer)
 						mentions(`Foto profile Berhasil di perbarui menggunakan foto profile @${id.split('@')[0]}`, [jid], true)
 					} catch (e) {
-						reply(ind.stikga())
+						reply(nad.stikga())
 					}
 					await limitAdd(sender)
 					break
 			                case 'ban':
-					if (!isOwner) return reply(ind.ownerb())
+					if (!isOwner) return reply(nad.ownerb())
 					bnnd = body.slice(6)
 					ban.push(`${bnnd}@s.whatsapp.net`)
 					fs.writeFileSync('./database/user/banned.json', JSON.stringify(ban))
 					reply(`Nomor ${bnnd} telah dibanned!`)
 					break
 				case 'unban':
-					if (!isOwner) return reply(ind.ownerb())
+					if (!isOwner) return reply(nad.ownerb())
 					ya = body.slice(8)
 					unb = ban.indexOf(ya)
 					ban.splice(unb, 1)
 					fs.writeFileSync('./database/user/banned.json', JSON.stringify(ban))
 					reply(`Nomor ${ya} telah di unban!`)
 					break
+				case 'resetlimit':
+				if (!isOwner) return reply(nad.ownerb())
+				var ngonsol = []
+				rest = _limit.indexOf()
+				_limit.splice(rest)
+				fs.writeFileSync('./database/user/limit.json', JSON.stringify(ngonsol))
+				reply(`LIMIT BERHASIL DI RESET BOS`)
+				break
+// SOUND					
 case 'iri':
+                if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
 const irimp3 = fs.readFileSync('./assets/iri.mp3');
 baby.sendMessage(from, irimp3, MessageType.audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true})
+await limitAdd(sender)
 break
 case 'pale':
+                if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
 const pa = fs.readFileSync('assets/pale.mp3')
 baby.sendMessage(from, pa, MessageType.audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true})
+await limitAdd(sender)
 break
-case 'sound':
-const soun = fs.readFileSync('assets/sound.mp3')
-baby.sendMessage(from, soun, MessageType.audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true})
-break 
 case 'sound1':
+                if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
 satu = fs.readFileSync('./assets/sound1.mp3');
 baby.sendMessage(from, satu, MessageType.audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true})
+await limitAdd(sender)
 break
 case 'sound2':
+                if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
 dua = fs.readFileSync('./assets/sound2.mp3');
 baby.sendMessage(from, dua, MessageType.audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true})
+await limitAdd(sender)
 break
 case 'sound3':
+                if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
 tiga = fs.readFileSync('./assets/sound3.mp3');
 baby.sendMessage(from, tiga, MessageType.audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true})
+await limitAdd(sender)
 break
 case 'sound4':
+                if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
 empat = fs.readFileSync('./assets/sound4.mp3');
 baby.sendMessage(from, empat, MessageType.audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true})
+await limitAdd(sender)
 break
 case 'sound5':
+                if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
 lima = fs.readFileSync('./assets/sound5.mp3');
 baby.sendMessage(from, lima, MessageType.audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true})
+await limitAdd(sender)
 break
 case 'sound6':
+                if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
 enam = fs.readFileSync('./assets/sound6.mp3');
 baby.sendMessage(from, enam, MessageType.audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true})
+await limitAdd(sender)
 break
 case 'sound7':
+                if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
 tujuh = fs.readFileSync('./assets/sound7.mp3');
 baby.sendMessage(from, tujuh, MessageType.audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true})
+await limitAdd(sender)
+break
+case 'sound8':
+                if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
+lapan = fs.readFileSync('./assets/sound8.mp3');
+baby.sendMessage(from, lapan, MessageType.audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true})
+await limitAdd(sender)
+break
+case 'sound9':
+                if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
+bilan = fs.readFileSync('./assets/sound9.mp3');
+baby.sendMessage(from, bilan, MessageType.audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true})
+await limitAdd(sender)
+break
+case 'sound10':
+                if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
+puluh = fs.readFileSync('./assets/sound10.mp3');
+baby.sendMessage(from, puluh, MessageType.audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true})
+await limitAdd(sender)
 break														
 /*
 ]=====> TQTO <=====[
