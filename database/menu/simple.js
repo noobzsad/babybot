@@ -16,8 +16,8 @@ Jika tidak paham ketik *${prefix}bingungcok*
 ┃│➸ *${prefix}sticker*
 ┃│➸ *${prefix}ttp*
 ┃│➸ *${prefix}tts*
-┃│➸ *${prefix}toimg*
 ┃│➸ *${prefix}nulis*
+┃│➸ *${prefix}toimg*
 ┃│➸ *${prefix}stalkig*
 ┃│➸ *${prefix}quotes*
 ┃│➸ *${prefix}bikinquote*
