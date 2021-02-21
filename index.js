@@ -2141,7 +2141,7 @@ break
 				case 'resetlimit':
 				if (!isOwner) return reply(nad.ownerb())
 				var ngonsol = []
-				rest = _limit.indexOf()
+				rest = _limit.indexOf([0])
 				_limit.splice(rest)
 				fs.writeFileSync('./database/user/limit.json', JSON.stringify(ngonsol))
 				reply(`LIMIT BERHASIL DI RESET BOS`)
