@@ -1204,16 +1204,7 @@ switch(command) {
 					reply(nad.wait())
 					buffer = await getBuffer(`https://api.xteam.xyz/randomimage/hentai?APIKEY=${XteamKey}`)
 					baby.sendMessage(from, buffer, image, {quoted: mek})
-					break
-                case 'quran':
-                  if (isBanned) return reply(nad.baned())
-				if (!isRegistered) return reply(nad.noregis())
-				if (!isPrem) return reply(nad.premium())
-					reply(nad.wait())
-					buffer = await getBuffer(`https://api.xteam.xyz/randomimage/hentai?APIKEY=${XteamKey}`)
-					baby.sendMessage(from, buffer, image, {quoted: mek})
-					break																																	               							
-// PREMIUM		    								
+					break	    								
 /*
 ]=====> GABUTZ MENU <=====[
 */
