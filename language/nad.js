@@ -39,7 +39,7 @@ exports.rediregis = () => {
 }
 
 exports.stikga = () => {
-	return`*「 GAGAL 」Coba ulangi lain kali kak*`
+	return`*「 GAGAL 」Coba Reply ulang kak*`
 }
 
 exports.linkga = () => {
@@ -110,10 +110,10 @@ exports.limitend = (pushname) => {
 	return`*maaf ${pushname} limit hari ini habis*\n*limit di reset setiap jam 24:00*`
 }
 
-exports.limitcount = (limitCounts) => {
+exports.limitcount = (Prema, limitCounts) => {
 	return`
 *「 LIMIT COUNT 」*
-sisa limit anda : ${limitCounts}
+sisa limit anda : ${Prema ? '9999' : `${limitCounts}`}
 
 Upgrade premium bosku, biar bebas gunain bot`
 }
