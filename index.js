@@ -23,23 +23,21 @@ const qrcode = require("qrcode-terminal")
 const moment = require("moment-timezone") 
 const fs = require("fs") 
 const crypto = require('crypto')
-const imageToBase64 = require('image-to-base64')
 const base64Img = require('base64-img')
 const fetch = require('node-fetch')
-const axios = require('axios')
 const { color, bgcolor } = require('./lib/color')
 const { donasi } = require('./lib/donasi')
 const { fetchJson } = require('./lib/fetcher')
 const { recognize } = require('./lib/ocr')
 const { cara } = require('./src/cara')
+const { iklan1 } = require('./src/iklan')
 const { exec } = require("child_process")
 const { wait, simih, getBuffer, h2k, generateMessageID, getGroupAdmins, getRandom, banner, start, info, success, close } = require('./lib/functions')
-const tiktod = require('tiktok-scraper')
 const speed = require('performance-now')
 const brainly = require('brainly-scraper')
 const ffmpeg = require('fluent-ffmpeg')
+const imgbb = require('imgbb-uploader')
 const cd = 4.32e+7
-const { removeBackgroundFromImageFile } = require('remove.bg')
 const { nad } = require('./language')
 const vcard = 'BEGIN:VCARD\n'
             + 'VERSION:3.0\n'
@@ -93,7 +91,6 @@ const { other } = require('./database/menu/other')
 const { owb } = require('./database/menu/owb')
 const { maker } = require('./database/menu/maker')
 const { sound } = require('./database/menu/sound')
-const { vip } = require('./database/menu/premium')
 /*
 ]=====> FUNCTION <=====[
 */
@@ -246,18 +243,6 @@ const getLevelingXp = (sender) => {
             }
         }
         
-         const limitAdd = (sender) => {
-             let position = false
-            Object.keys(_limit).forEach((i) => {
-                if (_limit[i].id == sender) {
-                    position = i
-                }
-            })
-            if (position !== false) {
-                _limit[position].limit += 1
-                fs.writeFileSync('./database/user/limit.json', JSON.stringify(_limit))
-            }
-        }
              
         
 function kyun(seconds){
@@ -269,7 +254,7 @@ function kyun(seconds){
   var seconds = Math.floor(seconds % 60);
 
   //return pad(hours) + ':' + pad(minutes) + ':' + pad(seconds)
-  return `${pad(hours)} Jam ${pad(minutes)} Menit ${pad(seconds)} Detik`
+  return `${pad(hours)} H ${pad(minutes)} M ${pad(seconds)} S`
 }
 /*
 ]=====> SCAN QR <=====[
@@ -373,7 +358,6 @@ baby.on('group-participants-update', async (anu) => {
             const isEventon = isGroup ? event.includes(from) : false
             const isRegistered = checkRegisteredUser(sender)
             const isBanned = ban.includes(sender)
-            const isPrem = premium.includes(sender)
             const isBotGroupAdmins = groupAdmins.includes(botNumber) || false
             const isLevelingOn = isGroup ? _leveling.includes(from) : false
 			const isGroupAdmins = groupAdmins.includes(sender) || false
@@ -382,6 +366,7 @@ baby.on('group-participants-update', async (anu) => {
 			const isSimi = isGroup ? samih.includes(from) : false
 			const isAntiLink = isGroup ? antilink.includes(from) : false
 			const isOwner = ownerNumber.includes(sender)
+			const isPrem = premium.includes(sender) || isOwner
 			const isImage = type === 'imageMessage'
 			const isUrl = (url) => {
 			    return url.match(new RegExp(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)/, 'gi'))
@@ -406,8 +391,52 @@ baby.on('group-participants-update', async (anu) => {
 		    }
 			
 /*
-]=====> LEVELING <=====[
+]=====> LEVELING && ROLE <=====[
 */
+			const Rank = getLevelingLevel(sender)
+   	     var role = 'NEWBIE'
+   	     if (Rank <= 3) {
+   	         role = 'Bronze I'
+   	     } else if (Rank <= 5) {
+   	         role = 'Bronze II'
+   	     } else if (Rank <= 7) {
+   	         role = 'Bronze III'
+   	     } else if (Rank <= 9) {
+   	         role = 'Silver I'
+   	     } else if (Rank <= 11) {
+   	         role = 'Silver II'
+   	     } else if (Rank <= 13) {
+   	         role = 'Silver III'
+   	     } else if (Rank <= 16) {
+   	         role = 'Gold I'
+   	     } else if (Rank <= 18) {
+   	         role = 'Gold II'
+   	     } else if (Rank <= 20) {
+   	         role = 'Gold III'
+   	     } else if (Rank <= 22) {
+   	         role = 'Gold IV'
+   	     } else if (Rank <= 25) {
+   	         role = 'Platinum I'
+   	     } else if (Rank <= 27) {
+   	         role = 'Platinum II'
+   	     } else if (Rank <= 29) {
+   	         role = 'Platinum III'
+   	     } else if (Rank <= 31) {
+   	         role = 'Platinum IV'
+   	     } else if (Rank <= 33) {
+   	         role = 'Diamond I'
+   	     } else if (Rank <= 35) {
+   	         role = 'Diamomd II'
+   	     } else if (Rank <= 37) {
+   	         role = 'Diamond III'
+   	     } else if (Rank <= 39) {
+   	         role = 'Diamond IV'
+   	     } else if (Rank <= 45) {
+   	         role = 'Master'
+   	     } else if (Rank <= 100) {
+   	         role = 'Grand Master'
+   	     }
+
             if (isGroup && isRegistered && isLevelingOn) {
             const currentLevel = getLevelingLevel(sender)
             const checkId = getLevelingId(sender)
@@ -433,9 +462,8 @@ baby.on('group-participants-update', async (anu) => {
           	let found = false
                     for (let lmt of _limit) {
                         if (lmt.id === sender) {
-                            let limitCounts = limitawal - lmt.limit
                             if (limitCounts <= 0) return baby.sendMessage(from,`Limit anda sudah habis\n\n_Note : limit bisa di dapatkan dengan cara ${prefix}buylimit dan naik level_`, text,{ quoted: mek})
-                            baby.sendMessage(from, nad.limitcount(limitCounts), text, { quoted : mek})
+                            baby.sendMessage(from, nad.limitcount(isPrem, limitCounts), text, { quoted : mek})
                             found = true
                         }
                     }
@@ -443,7 +471,7 @@ baby.on('group-participants-update', async (anu) => {
                         let obj = { id: sender, limit: 0 }
                         _limit.push(obj)
                         fs.writeFileSync('./database/user/limit.json', JSON.stringify(_limit))
-                        baby.sendMessage(from, nad.limitcount(limitCounts), text, { quoted : mek})
+                        baby.sendMessage(from, nad.limitcount(isPrem, limitCounts), text, { quoted : mek})
                     }
 				}
 				
@@ -474,15 +502,51 @@ baby.on('group-participants-update', async (anu) => {
        }
      }
 
+                 const limitAdd = (sender) => {
+                 if (isOwner && isPrem) {return false;}
+             let position = false
+            Object.keys(_limit).forEach((i) => {
+                if (_limit[i].id == sender) {
+                    position = i
+                }
+            })
+            if (position !== false) {
+                _limit[position].limit += 1
+                fs.writeFileSync('./database/user/limit.json', JSON.stringify(_limit))
+            }
+        }
         
-            if (isGroup) {
-				try {
-					const getmemex = groupMembers.length
+     	       if (isGroup) {
+					try {
+						const getmemex = groupMembers.length	
 					    if (getmemex <= memberlimit) {
-                            baby.groupLeave(from)
+						reply(`maaf kak membernya sedikit, aku gak bisa disini! Minimal member : ${memberlimit}`)
+						setTimeout( () => {
+ 	                           baby.groupLeave(from) 
+ 					   	}, 5000)
+								setTimeout( () => {
+								baby.updatePresence(from, Presence.composing)
+								reply("See you kak")
+							}, 4000)
+								setTimeout( () => {
+								baby.updatePresence(from, Presence.composing)
+								reply("Oh iya, jangan lupain aku ya:(")
+							}, 3000)
+								setTimeout( () => {
+								baby.updatePresence(from, Presence.composing)
+								reply("Baru undang aku lagi:)")
+							}, 2000)
+								setTimeout( () => {
+								baby.updatePresence(from, Presence.composing)
+								reply("Membernya tambahin dulu")
+							}, 1000)
+								setTimeout( () => {
+								baby.updatePresence(from, Presence.composing)
+								reply("Aku pamit ya kak:)")
+							}, 0)
 					    }
 		       } catch (err) { console.error(err)  }
-        }
+ 	       }
       
 /*
 ]=====> ATM <=====[
@@ -527,12 +591,59 @@ baby.on('group-participants-update', async (anu) => {
 			const isQuotedImage = type === 'extendedTextMessage' && content.includes('imageMessage')
 			const isQuotedVideo = type === 'extendedTextMessage' && content.includes('videoMessage')
 			const isQuotedSticker = type === 'extendedTextMessage' && content.includes('stickerMessage')
-			if (!isGroup && isCmd) console.log('\x1b[1;31m~\x1b[1;37m>', '[\x1b[1;32mEXEC\x1b[1;37m]', time, color(command), 'from', color(sender.split('@')[0]), 'args :', color(args.length))
-			if (!isGroup && !isCmd) console.log('\x1b[1;31m~\x1b[1;37m>', '[\x1b[1;31mRECV\x1b[1;37m]', time, color('Message'), 'from', color(sender.split('@')[0]), 'args :', color(args.length))
-			if (isCmd && isGroup) console.log('\x1b[1;31m~\x1b[1;37m>', '[\x1b[1;32mEXEC\x1b[1;37m]', time, color(command), 'from', color(sender.split('@')[0]), 'in', color(groupName), 'args :', color(args.length))
-			if (!isCmd && isGroup) console.log('\x1b[1;31m~\x1b[1;37m>', '[\x1b[1;31mRECV\x1b[1;37m]', time, color('Message'), 'from', color(sender.split('@')[0]), 'in', color(groupName), 'args :', color(args.length))
+			if (!isGroup && isCmd) console.log('\x1b[1;31m=\x1b[1;37m>', '[\x1b[1;32mBABY\x1b[1;37m]', time, color(command), 'dari', color(sender.split('@')[0]), 'args :', color(args.length))
+			if (!isGroup && !isCmd) console.log('\x1b[1;31m=\x1b[1;37m>', '[\x1b[1;31mR4M\x1b[1;37m]', time, color('Pesan'), 'dari', color(pushname), 'args :', color(args.length))
+			if (isCmd && isGroup) console.log('\x1b[1;31m=\x1b[1;37m>', '[\x1b[1;32mBABY\x1b[1;37m]', time, color(command), 'dari', color(sender.split('@')[0]), 'in', color(groupName), 'args :', color(args.length))
+			if (!isCmd && isGroup) console.log('\x1b[1;31m=\x1b[1;37m>', '[\x1b[1;31mR4M\x1b[1;37m]', time, color('Pesan'), 'dari', color(pushname), 'in', color(groupName), 'args :', color(args.length))
+	    let authorname = baby.contacts[from] != undefined ? baby.contacts[from].vname || baby.contacts[from].notify : undefined	
+	    if (authorname != undefined) { } else { authorname = groupName }				function addMetadata(packname, author) {	
 
+				if (!packname) packname = 'BABYBOT'; if (!author) author = 'Ramlan ID';	
+				author = author.replace(/[^a-zA-Z0-9]/g, '');	
+				let name = `${author}_${packname}`
+				if (fs.existsSync(`./src/stickers/${name}.exif`)) return `./src/stickers/${name}.exif`
+				const json = {	
+					"sticker-pack-name": packname,
+					"sticker-pack-publisher": author,
+				}
+				const littleEndian = Buffer.from([0x49, 0x49, 0x2A, 0x00, 0x08, 0x00, 0x00, 0x00, 0x01, 0x00, 0x41, 0x57, 0x07, 0x00])	
+				const bytes = [0x00, 0x00, 0x16, 0x00, 0x00, 0x00]	
 
+				let len = JSON.stringify(json).length	
+				let last	
+
+				if (len > 256) {	
+					len = len - 256	
+					bytes.unshift(0x01)	
+				} else {	
+					bytes.unshift(0x00)	
+				}	
+
+				if (len < 16) {	
+					last = len.toString(16)	
+					last = "0" + len	
+				} else {	
+					last = len.toString(16)	
+				}	
+
+				const buf2 = Buffer.from(last, "hex")	
+				const buf3 = Buffer.from(bytes)	
+				const buf4 = Buffer.from(JSON.stringify(json))	
+
+				const buffer = Buffer.concat([littleEndian, buf2, buf3, buf4])	
+
+				fs.writeFile(`./src/stickers/${name}.exif`, buffer, (err) => {	
+					return `./src/stickers/${name}.exif`	
+				})	
+
+			}
+			var prema = 'Free'
+			if (isPrem) {
+				prema = 'Premium'
+			} 
+			if (isOwner) {
+				prema = 'Owner'
+			}
 switch(command) {
                 case 'help':
 				case 'menu':
@@ -540,17 +651,20 @@ switch(command) {
 				if (!isRegistered) return reply(nad.noregis())
 				    const reqXp  = 5000 * (Math.pow(2, getLevelingLevel(sender)) - 1)
 				    const uangku = checkATMuser(sender)
-					await costum(help(pushname, prefix, botName, ownerName, reqXp, getLevelingLevel, sender, _registered, uangku), text, tescuk, cr)
+					await costum(help(pushname, prefix, botName, ownerName, reqXp, getLevelingLevel, sender, _registered, uangku, role, prema), text, tescuk, cr)
 					break
 				case 'donasi':
 				case 'donate':
 					baby.sendMessage(from, donasi(pushname, prefix, botName, ownerName), text)
 					break
+				case 'iklan':
+					baby.sendMessage(from, iklan1(pushname, prefix, botName, ownerName), text)
+					break
 				case 'bingungcok':
 				if (isBanned) return reply(nad.baned())
 				if (!isRegistered) return reply(nad.noregis())				
 					baby.sendMessage(from, cara(pushname, prefix, botName, ownerName), text)
-					break										
+					break
                 case 'simplemenu':
 				case 'simpelmenu':
 				if (isBanned) return reply(nad.baned())
@@ -597,12 +711,7 @@ switch(command) {
                 if (isBanned) return reply(nad.baned())
 				if (!isRegistered) return reply(nad.noregis())					
 					await costum(sound(pushname, prefix, botName, ownerName, getLevelingLevel, sender, _registered), text, tescuk, cr)
-					break
-                case 'premiummenu':
-                if (isBanned) return reply(nad.baned())
-				if (!isRegistered) return reply(nad.noregis())					
-					await costum(vip(pushname, prefix, botName, ownerName, getLevelingLevel, sender, _registered), text, tescuk, cr)
-					break																			
+					break																		
                 case 'ownermenu':
                 if (isBanned) return reply(nad.baned())
 				if (!isRegistered) return reply(nad.noregis())                				
@@ -611,13 +720,15 @@ switch(command) {
 /*
 ]=====> SIMPLE MENU <=====[
 */
-				case 'stiker': 
+				case 'stiker':
 				case 'sticker':
 				case 's':
+				case 'stickergif':
+				case 'stikergif':
 				if (isBanned) return reply(nad.baned())
 				    if (!isRegistered) return reply(nad.noregis())
 				    if (isLimit(sender)) return reply(nad.limitend(pusname))
-                    await limitAdd(sender)
+                    await limitAdd(sender)				
 					if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 						const encmedia = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
 						const media = await baby.downloadAndSaveMediaMessage(encmedia)
@@ -634,10 +745,12 @@ switch(command) {
 							})
 							.on('end', function () {
 								console.log('Finish')
-								buffer = fs.readFileSync(ran)
-								baby.sendMessage(from, buffer, sticker, {quoted: mek})
-								fs.unlinkSync(media)
-								fs.unlinkSync(ran)
+								exec(`webpmux -set exif ${addMetadata('BABYBOT', authorname)} ${ran} -o ${ran}`, async (error) => {
+									if (error) return reply(nad.stikga())
+									baby.sendMessage(from, fs.readFileSync(ran), sticker, {quoted: mek})
+									fs.unlinkSync(media)	
+									fs.unlinkSync(ran)	
+								})
 							})
 							.addOutputOptions([`-vcodec`,`libwebp`,`-vf`,`scale='min(320,iw)':min'(320,ih)':force_original_aspect_ratio=decrease,fps=15, pad=320:320:-1:-1:color=white@0.0, split [a][b]; [a] palettegen=reserve_transparent=on:transparency_color=ffffff [p]; [b][p] paletteuse`])
 							.toFormat('webp')
@@ -656,22 +769,29 @@ switch(command) {
 								console.log(`Error : ${err}`)
 								fs.unlinkSync(media)
 								tipe = media.endsWith('.mp4') ? 'video' : 'gif'
-								reply(nad.stikga())
+								reply(` Gagal, pada saat mengkonversi ${tipe} ke stiker`)
 							})
 							.on('end', function () {
 								console.log('Finish')
-								buffer = fs.readFileSync(ran)
-								baby.sendMessage(from, buffer, sticker, {quoted: mek})
-								fs.unlinkSync(media)
-								fs.unlinkSync(ran)
+								exec(`webpmux -set exif ${addMetadata('BABYBOT', authorname)} ${ran} -o ${ran}`, async (error) => {
+									if (error) return reply(nad.stikga())
+									baby.sendMessage(from, fs.readFileSync(ran), sticker, {quoted: mek})
+									fs.unlinkSync(media)
+									fs.unlinkSync(ran)
+								})
 							})
 							.addOutputOptions([`-vcodec`,`libwebp`,`-vf`,`scale='min(320,iw)':min'(320,ih)':force_original_aspect_ratio=decrease,fps=15, pad=320:320:-1:-1:color=white@0.0, split [a][b]; [a] palettegen=reserve_transparent=on:transparency_color=ffffff [p]; [b][p] paletteuse`])
 							.toFormat('webp')
 							.save(ran)
-							} else {
+					} else {
 						reply(`Kirim gambar/video/gif dengan caption \n${prefix}sticker (durasi sticker video 1-9 detik)`)
 					}
 					break
+			case 'runtime':
+			uptime = process.uptime()
+			run = `「 *RUNTIME* 」\n${kyun(uptime)}`
+			baby.sendMessage(from, run, text, {quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: from } : {}) }, message: { conversation: `𝐁𝐀𝐁𝐘 𝐁𝐎𝐓 𝐕𝐄𝐑𝐈𝐅𝐈𝐄𝐃` }}})
+			break
 				case 'nulis':
                   if (isBanned) return reply(nad.baned())
 				if (!isRegistered) return reply(nad.noregis())
@@ -683,28 +803,28 @@ switch(command) {
 				baby.sendMessage(from, tak, image, {quoted: mek, caption: 'Lebih baik nulis sendiri ya kak :*'})
 					await limitAdd(sender)				
 				break					
-				case 'nulis1':
-				case 'tulis1':
+				case 'nuliskiri':
+				case 'tuliskiri':
                   if (isBanned) return reply(nad.baned())
 				if (!isRegistered) return reply(nad.noregis())
 				if (!isPrem) return reply(nad.premium())
 				if (args.length < 1) return reply(`Teksnya mana kak? Contoh : ${prefix}nulis1 Ramlan baik hati`)
-				ramlan = body.slice(8)
+				ramlan = body.slice(11)
 				reply('「❗」WAIT BRO GUE NULIS DUMLU YAKAN')
 				buff = await getBuffer(`https://api.xteam.xyz/magernulis2?text=${ramlan}&APIKEY=${XteamKey}`)
 				baby.sendMessage(from, buff, image, {quoted: mek, caption: 'Lebih baik nulis sendiri ya kak :*'})
 				break
-				case 'nulis2':
-				case 'tulis2':
+				case 'nuliskanan':
+				case 'tuliskanan':
                   if (isBanned) return reply(nad.baned())
 				if (!isRegistered) return reply(nad.noregis())
 				if (!isPrem) return reply(nad.premium())
 				if (args.length < 1) return reply(`Teksnya mana kak? Contoh : ${prefix}nulis2 Ramlan baik hati`)
-				laysha = body.slice(8)
+				laysha = body.slice(12)
 				reply('「❗」WAIT BRO GUE NULIS DUMLU YAKAN')
 				buff = await getBuffer(`https://api.xteam.xyz/magernulis3?text=${laysha}&APIKEY=${XteamKey}`)
 				baby.sendMessage(from, buff, image, {quoted: mek, caption: 'Lebih baik nulis sendiri ya kak :*'})
-				break												
+				break					
 				case 'quotes':
 				baby.updatePresence(from, Presence.composing) 
                 if (isBanned) return reply(nad.baned())
@@ -750,7 +870,7 @@ switch(command) {
 				var hub = gh.split("&")[1];
 				if (args.length < 1) return reply(`「❗」Contoh : ${prefix}pornhub Ramlan & Hub`)
 				reply(nad.wait())
-				alan = await getBuffer(`https://vinz.zeks.xyz/api/pornhub?text1=${porn}&text2=${hub}`)
+				alan = await getBuffer(`https://api.zeks.xyz/api/phlogo?text1=${porn}&text2=${hub}&apikey=apivinz`)
 				baby.sendMessage(from, alan, image, {quoted: mek})
 				await limitAdd(sender)
 				break
@@ -784,16 +904,16 @@ switch(command) {
 				if (!isRegistered) return reply(nad.noregis())
 				if (isLimit(sender)) return reply(nad.limitend(pusname))
 					if (args.length < 1) return reply(`Mau nanya apa? Contoh : ${prefix}simi halo`)
-					teks = body.slice(5)
-					anu = await fetchJson(`https://vinz.zeks.xyz/api/sim?text=${teks}`)
-					reply(anu.result)
+					tefs = body.slice(5)
+					anu = await fetchJson(`https://api.xteam.xyz/simsimi?kata=${tefs}&APIKEY=${XteamKey}`)
+					reply(anu.jawaban)
 					await limitAdd(sender)
-					break					
+					break
 				case 'tts':
 				if (isBanned) return reply(nad.baned())
 				if (!isRegistered) return reply(nad.noregis())
 				if (isLimit(sender)) return reply(nad.limitend(pusname))
-				if (args.length < 1) return baby.sendMessage(from, 'Kode bahasanya mana kak? contoh : ${prefix}tts id Halo Ramlan', text, {quoted: mek})
+				if (args.length < 1) return baby.sendMessage(from, `Kode bahasanya mana kak? contoh : ${prefix}tts id Halo Ramlan`, text, {quoted: mek})
 					const gtts = require('./lib/gtts')(args[0])
 					if (args.length < 2) return baby.sendMessage(from, `Teksnya mana kak | contoh : ${prefix}tts id ah yamate kudasai`, text, {quoted: mek})
 					dtt = body.slice(8)
@@ -819,7 +939,7 @@ switch(command) {
 							fetch(`https://api.areltiyan.site/sticker_maker?text=${ttptext}`, { method: 'GET'})
 							.then(async res => {
 							const ttptxt = await res.json()
-							console.log("RAMLANID")
+							console.log("SUKSES")
 							base64Img.img(ttptxt.base64, 'temp', 'ttp', function(err, filepath) {
 							if (err) return console.log(err);
 							exec(`ffmpeg -i ${pngttp} -vcodec libwebp -filter:v fps=fps=20 -lossless 1 -loop 0 -preset default -an -vsync 0 -s 512:512 ${webpng}`, (err) => {
@@ -874,7 +994,7 @@ switch(command) {
                 if (isBanned) return reply(nad.baned())
                 if (!isRegistered) return reply(nad.noregis())
                 if (isLimit(sender)) return reply(nad.limitend(pusname))
-					nganu = await fetchJson(`https://vinz.zeks.xyz/api/meme`)
+					nganu = await fetchJson(`https://api.zeks.xyz/api/memeindo?apikey=apivinz`)
 					buper = await getBuffer(nganu.result)
 					baby.sendMessage(from, buper, image, {quoted: mek})
 					await limitAdd(sender)
@@ -883,11 +1003,15 @@ switch(command) {
                    if (isBanned) return reply(nad.baned())
                    if (!isRegistered) return reply(nad.noregis())
                    if (isLimit(sender)) return reply(nad.limitend(pusname))
-                     teks = body.slice(9)
-                     anu = await fetchJson(`https://api.xteam.xyz/dl/igstalk?nama=${teks}&APIKEY=${XteamKey}`, {method: 'get'})
+                     tess = body.slice(9)
+                     anu = await fetchJson(`https://api.shizukaa.xyz/api/igstalk?apikey=itsmeiky633&u=${tess}`, {method: 'get'})
                      reply('「❗」Sabar Lagi Stalking IG nya kak')
-                     buffer = await getBuffer(anu.result.user.hd_profile_pic_url_info.url)
-                     hasil = `YAHAHA TELAH DI STALK BOS KU UNTUK USERNAME ${teks} \n\n *Username?* : _${anu.result.user.username}_ \n *Nama??* : _${anu.result.user.full_name}_ \n *Jumlah Follower??﹦?* : _${anu.result.user.follower_count}_ \n *Jumlah Following?* : _${anu.result.user.following_count}_ \n *Jumlah Post?* : _${anu.result.user.media_count}_ \n *Biografi?? :* _${anu.result.user.biography}`
+                     buffer = await getBuffer(anu.data.profilehd)
+                     hasil = `YAHAHA TELAH DI STALK BOS KU UNTUK USERNAME ${tess}
+*◯ Nama* : _${anu.data.fullname}_
+*◯ Jumlah Follower* : _${anu.data.follower}_
+*◯ Jumlah Following* : _${anu.data.following}_
+*◯ Biografi* : _${anu.data.bio}_`
                     baby.sendMessage(from, buffer, image, {quoted: mek, caption: hasil})
                     await limitAdd(sender)
 			       break
@@ -919,14 +1043,14 @@ switch(command) {
 				case 'premiumlist':
 					baby.updatePresence(from, Presence.composing) 
                     if (!isRegistered) return reply(nad.noregis())
-					teks = `╭─「 *JUMLAH USER PREMIUM* 」\n`
+					iyaa = `╭─「 *JUMLAH USER PREMIUM* 」\n`
 					no = 0
 					for (let prem of premium) {
 						no += 1
-						teks += `│「${no.toString()}」 @${prem.split('@')[0]}\n`
+						iyaa += `│「${no.toString()}」 @${prem.split('@')[0]}\n`
 					}
-					teks += `│ Jumlah User Premium : ${premium.length}\n╰──────「 *${botName}* 」`
-					baby.sendMessage(from, teks.trim(), extendedText, {quoted: mek, contextInfo: {"mentionedJid": premium}})
+					iyaa += `│ Jumlah User Premium : ${premium.length}\n╰──────「 *${botName}* 」`
+					baby.sendMessage(from, iyaa.trim(), extendedText, {quoted: mek, contextInfo: {"mentionedJid": premium}})
 					break
 				case 'bokep':
 				baby.updatePresence(from, Presence.composing) 
@@ -990,6 +1114,23 @@ switch(command) {
 					reply('「❗」KASIH JEDA 1 MENIT HABIS INI YA KAK')
 					if (anu.error) return reply(anu.error)
 					exec(`wget ${anu.result} -O ${ranp} && ffmpeg -i ${ranp} -vcodec libwebp -filter:v fps=fps=15 -lossless 1 -loop 0 -preset default -an -vsync 0 -s 512:512 ${rano}`, (err) => {
+						fs.unlinkSync(ranp)
+						if (err) return reply(nad.stikga())
+						buffer = fs.readFileSync(rano)
+						baby.sendMessage(from, buffer, sticker, {quoted: mek})
+						fs.unlinkSync(rano)
+					})
+					break
+                case 'pussy':
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (!isPrem) return reply(nad.premium())
+					ranp = getRandom('.gif')
+					rano = getRandom('.webp')
+					anu = await fetchJson(`https://api.shizukaa.xyz/api/pussy?apikey=itsmeiky633`, {method: 'get'})
+					reply('「❗」KASIH JEDA 1 MENIT HABIS INI YA KAK')
+					if (anu.error) return reply(anu.error)
+					exec(`wget ${anu.url} -O ${ranp} && ffmpeg -i ${ranp} -vcodec libwebp -filter:v fps=fps=15 -lossless 1 -loop 0 -preset default -an -vsync 0 -s 512:512 ${rano}`, (err) => {
 						fs.unlinkSync(ranp)
 						if (err) return reply(nad.stikga())
 						buffer = fs.readFileSync(rano)
@@ -1095,12 +1236,21 @@ switch(command) {
 					})
 					break
 				case 'wiki':
-					if (args.length < 1) return reply('masukan kata kunci')
+					if (args.length < 1) return reply(`masukan kata kunci\ncontoh : ${prefix}wiki hacker`)
 					if (isBanned) return reply(nad.baned())
 					if (!isRegistered) return reply(nad.noregis())
 				    if (isLimit(sender)) return reply(nad.limitend(pusname))
-					anu = await fetchJson(`https://st4rz.herokuapp.com/api/wiki?q=${body.slice(6)}`)
+					anu = await fetchJson(`https://api.shizukaa.xyz/api/wiki?apikey=itsmeiky633&q=${body.slice(6)}`)
 					reply(anu.result)
+                    await limitAdd(sender)
+					break
+					case 'kbbi':
+					if (args.length < 1) return reply(`masukan kata kunci\ncontoh : ${prefix}kbbi semangka`)
+					if (isBanned) return reply(nad.baned())
+					if (!isRegistered) return reply(nad.noregis())
+				    if (isLimit(sender)) return reply(nad.limitend(pusname))
+					abu = await fetchJson(`https://api.zeks.xyz/api/kbbi?q=${body.slice(6)}&apikey=apivinz`)
+					reply(abu.result)
                     await limitAdd(sender)
 					break					
 					case 'peluk':
@@ -1120,29 +1270,45 @@ switch(command) {
 						fs.unlinkSync(rano)
 					})
 					break
+// YTMP4
 				case 'yutubdl':
+					if (args.length < 1) return reply('Linknya mana um?')
 					if (isBanned) return reply(nad.baned())
 					if (!isRegistered) return reply(nad.noregis())
-				    if (isLimit(sender)) return reply(nad.limitend(pusname))
-					lah = await fetchJson(`https://st4rz.herokuapp.com/api/ytv2?url=${body.slice(9)}`)
+				    if (!isPrem) return reply(nad.premium())
+					if(!isUrl(args[0]) && !args[0].includes('youtu')) return reply('URL NYA TIDAK VALID KAK')
+					lah = await fetchJson(`https://api.xteam.xyz/dl/ytmp4?url=${body.slice(9)}&APIKEY=${XteamKey}`)
 					if (lah.error) return reply(lah.error)
-					teks = `*➸ JUDUL* : ${lah.title}\n\n*[WAIT] Proses Dumlu Yakan*`
-					buffer = await getBuffer(lah.thumb)
-					baby.sendMessage(from, buffer, image, {quoted: mek, caption: teks})
-					buff = await getBuffer(lah.result)
-					baby.sendMessage(from, buff, video, {mimetype: 'video/mp4', quoted: mek})
-					await limitAdd(sender)
+					tens = `*➸ Judul* : ${lah.judul}\n*➸ Size* : ${lah.size}\n\n*[WAIT] Proses Dumlu Yakan*`
+					mengasu = await getBuffer(lah.thumbnail)
+					baby.sendMessage(from, mengasu, image, {quoted: mek, caption: tens})
+					mengery = await getBuffer(lah.url)
+					baby.sendMessage(from, mengery, video, {mimetype: 'video/mp4', quoted: mek})
+					break
+// YTMP4
+				case 'ytmp4':
+					if (args.length < 1) return reply('Linknya mana um?')
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (!isPrem) return reply(nad.premium())
+					if(!isUrl(args[0]) && !args[0].includes('youtu')) return reply('URL NYA TIDAK VALID KAK')
+					cie = await fetchJson(`https://api.zeks.xyz/api/ytmp4/2?url=${body.slice(7)}&apikey=apivinz`)
+					if (cie.error) return reply(cie.error)
+					tels = `*➸ Judul* : ${cie.result.title}\n*➸ Size* : ${cie.result.size}\n\n*[WAIT] Proses Dumlu Yakan*`
+					bufper = await getBuffer(cie.result.thumb)
+					baby.sendMessage(from, bufper, image, {quoted: mek, caption: tels})
+					bufp = await getBuffer(cie.result.link)
+					baby.sendMessage(from, bufp, video, {mimetype: 'video/mp4', quoted: mek})
 					break
 				case 'tiktod':
-					if (args.length < 1) return reply('Urlnya mana um?')
+					if (args.length < 1) return reply('Linknya mana um?')
                   if (isBanned) return reply(nad.baned())
 				if (!isRegistered) return reply(nad.noregis())
 				if (isLimit(sender)) return reply(nad.limitend(pusname))
-					if(!isUrl(args[0]) && !args[0].includes('youtu')) return reply('URL NYA TIDAK VALID KAK')
-					anu = await fetchJson(`https://api.zeks.xyz/api/tiktok?url=${args[0]}&apikey=apivinz`,)
+					anu = await fetchJson(`https://api.xteam.xyz/dl/tiktok?url=${body.slice(8)}&APIKEY=${XteamKey}`)
 					reply('[WAIT] Proses Dumlu Yakan')
-					rmln = await getBuffer(anu.result.result.server_1)
-					baby.sendMessage(from, rmln, video, {mimetype: 'video/mp4', quoted: mek})
+					neteh = await getBuffer(anu.result.url)
+					baby.sendMessage(from, neteh, video, {mimetype: 'video/mp4', quoted: mek})
 					await limitAdd(sender)
 					break
 					case 'hidetag5':
@@ -1287,21 +1453,11 @@ case 'neontext':
 				if (!isRegistered) return reply(nad.noregis())
 				if (!isPrem) return reply(nad.premium())
 					if (args.length < 1) return reply(`「❗」Contoh : ${prefix}neontext Ramlan`)
-					neon = body.slice(10)
+					naon = body.slice(10)
 					reply('「❗」WAIT GANS')
-					anu = await getBuffer(`https://api.xteam.xyz/textpro/neon?text=$APIKEY=${XteamKey}`)
-					baby.sendMessage(from, anu, image, {quoted: mek})
-					break					
-           case 'seberapagay':
-           if (isBanned) return reply(nad.baned())
-           if (!isRegistered) return reply(nad.noregis())
-           if (isLimit(sender)) return reply(nad.limitend(pusname))
-					gay = body.slice(13)
-		   anu = await fetchJson(`https://arugaz.herokuapp.com/api/howgay`, {method: 'get'})
-		   hasil = `Nih Liat Data Gay Si ${gay}\n\n\nPersentase Gay : ${anu.persen}%\nAlert!!! : ${anu.desc}`
-		   reply(hasil)
-		   await limitAdd(sender)
-					break	
+					alu = await getBuffer(`https://api.xteam.xyz/textpro/neon?text=${naon}&APIKEY=${XteamKey}`)
+					baby.sendMessage(from, alu, image, {quoted: mek})
+					break
                 case 'truth':
                 if (isBanned) return reply(nad.baned())
                 if (!isRegistered) return reply(nad.noregis())
@@ -1371,10 +1527,22 @@ case 'neontext':
 					if (args.length < 1) return reply(`「❗」Contoh : ${prefix}blackpink Ramlan`)
 					pink = body.slice(11)
 					reply('「❗」Hah Blekping :v')
-					lol = await getBuffer(`https://vinz.zeks.xyz/api/blackpink?text=${pink}`)
+					lol = await getBuffer(`https://api.zeks.xyz/api/logobp?text=${pink}&apikey=apivinz`)
 					baby.sendMessage(from, lol, image, {quoted: mek})
 					await limitAdd(sender)
-					break					
+					break
+					case 'coffetext':
+                  if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+					if (isLimit(sender)) return reply(nad.limitend(pusname))
+					if (args.length < 1) return reply(`「❗」Contoh : ${prefix}blackpink Ramlan`)
+					coff = body.slice(11)
+					mhe = await fetchJson(`https://api.shizukaa.xyz/api/coffie?apikey=itsmeiky633&text=${coff}`)
+					reply(nad.wait())
+					atu = await getBuffer(mhe.result.url)
+					baby.sendMessage(from, atu, image, {quoted: mek})
+					await limitAdd(sender)
+					break			
                  case 'event':
                   if (isBanned) return reply(nad.baned())                 
 					if (!isGroup) return reply(nad.groupo())
@@ -1474,13 +1642,13 @@ case 'neontext':
 				if (!isRegistered) return reply(nad.noregis())
 				if (isLimit(sender)) return reply(nad.limitend(pusname))			
 					if (!isGroup) return reply(nad.groupo())
-					teks = `*DAFTAR ATASAN GROUP* _${groupMetadata.subject}_\n*TOTAL* : ${groupAdmins.length}\n\n`
+					teus = `*DAFTAR ATASAN GROUP* _${groupMetadata.subject}_\n*TOTAL* : ${groupAdmins.length}\n\n`
 					no = 0
 					for (let admon of groupAdmins) {
 						no += 1
-						teks += `[${no.toString()}] @${admon.split('@')[0]}\n`
+						teus += `[${no.toString()}] @${admon.split('@')[0]}\n`
 					}
-					mentions(teks, groupAdmins, true)
+					mentions(teus, groupAdmins, true)
 					await limitAdd(sender)
 					break
 					case 'grup':
@@ -1522,12 +1690,12 @@ case 'neontext':
 					if (mek.message.extendedTextMessage === undefined || mek.message.extendedTextMessage === null) return reply('𝗧𝗮𝗴 𝘁𝗮𝗿𝗴𝗲𝘁 ??𝗮𝗻𝗴 𝗶𝗻𝗴𝗶𝗻 𝗱𝗶 𝘁𝗲𝗻𝗱𝗮𝗻𝗴!')
 					mentioned = mek.message.extendedTextMessage.contextInfo.mentionedJid
 					if (mentioned.length > 1) {
-						teks = ''
+						teys = ''
 						for (let _ of mentioned) {
-							teks += `Bismillah atas izin admin grup kamu akan saya tendang 🏃 :\n`
-							teks += `@_.split('@')[0]`
+							teys += `Bismillah atas izin admin grup kamu akan saya tendang 🏃 :\n`
+							teys += `@_.split('@')[0]`
 						}
-						mentions(teks, mentioned, true)
+						mentions(teys, mentioned, true)
 						baby.groupRemove(from, mentioned)
 					} else {
 						mentions(`Bismillah atas izin admin grup kamu akan saya tendang @${mentioned[0].split('@')[0]} 🏃`, mentioned, true)
@@ -1590,14 +1758,26 @@ case 'neontext':
 					if (!isGroup) return reply(nad.groupo())
 					if (!isGroupAdmins) return reply(nad.admin())
 					members_id = []
-					teks = (args.length > 1) ? body.slice(8).trim() : ''
-					teks += '\n\n'
+					tets = (args.length > 1) ? body.slice(8).trim() : ''
 					for (let mem of groupMembers) {
-						teks += `➸ @${mem.jid.split('@')[0]}\n`
+					tets += '\n\n'
+						tets += `➸ @${mem.jid.split('@')[0]}\n`
 						members_id.push(mem.jid)
 					}
-					mentions(teks, members_id, true)
+					mentions(tets, members_id, true)
 					await limitAdd(sender)
+					break
+				case 'tagall':
+					if (!isGroup) return reply(ind.groupo())
+					if (!isGroupAdmins) return reply(ind.admin())
+					members_id = []
+					ters = (args.length > 1) ? body.slice(8).trim() : ''
+					ters += '\n\n'
+					for (let mem of groupMembers) {
+						ters += `➸ @${mem.jid.split('@')[0]}\n`
+						members_id.push(mem.jid)
+					}
+					mentions(ters, members_id, true)
 					break
            case 'setname':
                 if (!isRegistered) return reply(nad.noregis())           
@@ -1623,12 +1803,12 @@ case 'neontext':
 					if (mek.message.extendedTextMessage === undefined || mek.message.extendedTextMessage === null) return reply('𝗧𝗮𝗴 𝘁𝗮𝗿𝗴𝗲𝘁 𝘆𝗮𝗻𝗴 𝗶𝗻𝗴𝗶𝗻 𝗱𝗶 𝘁𝗲𝗻𝗱𝗮𝗻𝗴!')
 					mentioned = mek.message.extendedTextMessage.contextInfo.mentionedJid
 					if (mentioned.length > 1) {
-						teks = ''
+						tews = ''
 						for (let _ of mentioned) {
-							teks += `*jabatan kamu di copot*🏃 :\n`
-							teks += `@_.split('@')[0]`
+							tews += `*jabatan kamu di copot*🏃 :\n`
+							tews += `@_.split('@')[0]`
 						}
-						mentions(teks, mentioned, true)
+						mentions(tews, mentioned, true)
 						baby.groupDemoteAdmin(from, mentioned)
 					} else {
 						mentions(`Yahh @${mentioned[0].split('@')[0]} Jabatan kamu sebagai leluhur di grup telah di copot🏃`, mentioned, true)
@@ -1643,12 +1823,12 @@ case 'neontext':
 					if (mek.message.extendedTextMessage === undefined || mek.message.extendedTextMessage === null) return reply('𝗧𝗮𝗴 ??𝗮??𝗴𝗲𝘁 𝘆𝗮𝗻𝗴 𝗶𝗻𝗴𝗶𝗻 𝗱𝗶 𝘁𝗲𝗻𝗱𝗮𝗻𝗴!')
 					mentioned = mek.message.extendedTextMessage.contextInfo.mentionedJid
 					if (mentioned.length > 1) {
-						teks = ''
+						tems = ''
 						for (let _ of mentioned) {
-							teks += `Yeee🥳 Kamu naik jabatan >_< :\n`
-							teks += `@_.split('@')[0]`
+							tems += `Yeee🥳 Kamu naik jabatan >_< :\n`
+							tems += `@_.split('@')[0]`
 						}
-						mentions(teks, mentioned, true)
+						mentions(tems, mentioned, true)
 						baby.groupMakeAdmin(from, mentioned)
 					} else {
 						mentions(`Selamat🥳 @${mentioned[0].split('@')[0]} *anda naik menjadi admin group* >_<`, mentioned, true)
@@ -1663,13 +1843,13 @@ case 'neontext':
 					if (mek.message.extendedTextMessage === undefined || mek.message.extendedTextMessage === null) return reply('Tag target yang ingin di tendang!')
 					mentioned = mek.message.extendedTextMessage.contextInfo.mentionedJid
 					if (mentioned.length > 1) {
-						teks = 'Bismillah Hedsot >_< :\n'
+						tecs = 'Bismillah Hedsot >_< :\n'
 						for (let _ of mentioned) {
-							teks += `@${_.split('@')[0]}\n`
+							tecs += `@${_.split('@')[0]}\n`
 						}
-						mentions(teks, mentioned, true)
+						mentions(tecs, mentioned, true)
 						baby.groupRemove(from, mentioned)
-						mentions(teks, mentioned, true)
+						mentions(tecs, mentioned, true)
 						baby.groupAdd(from, [num])
 					} else {
 						mentions(`Berhasil Meng hedsot pala nya  : @${mentioned[0].split('@')[0]}`, mentioned, true)
@@ -1726,13 +1906,35 @@ case 'ytmp3':
 	 if (!isRegistered) return reply(nad.noregis())
 	 if (isLimit(sender)) return reply(nad.limitend(pusname)) 
      reply(nad.wait())
-     anu = await fetchJson(`https://st4rz.herokuapp.com/api/yta2?url=${body.slice(7)}`)
+     anu = await fetchJson(`https://api.zeks.xyz/api/ytmp3/2?url=${body.slice(7)}&apikey=apivinz`)
      if (anu.error) return reply(anu.error)
-     ingfomp3 = `*「❗」Lagu Ditemukan「❗」*\n➸ Judul : ${anu.title}\n\n*[WAIT] Proses Dumlu Yakan*`
-     buffer = await getBuffer(anu.thumb)
-     lagu = await getBuffer(anu.result)
+     ingfomp3 = `*「❗」Lagu Ditemukan「❗」*\n➸ Judul : ${anu.result.title}\n➸ Size : ${anu.result.size}\n\n*[WAIT] Proses Dumlu Yakan*`
+     buffer = await getBuffer(anu.result.thumb)
+     lagu = await getBuffer(anu.result.link)
      baby.sendMessage(from, buffer, image, {quoted: mek, caption: ingfomp3})
      baby.sendMessage(from, lagu, audio, {mimetype: 'audio/mp4', quoted: mek})
+     await limitAdd(sender)
+break
+case 'igvideo':
+     if (isBanned) return reply(nad.baned())
+	 if (!isRegistered) return reply(nad.noregis())
+	 if (isLimit(sender)) return reply(nad.limitend(pusname)) 
+     reply(nad.wait())
+     anu = await fetchJson(`https://api.zeks.xyz/api/ig?url=${body.slice(9)}&apikey=apivinz`)
+     if (anu.error) return reply(anu.error)
+     igv = await getBuffer(anu.result[0].url)
+     baby.sendMessage(from, igv, video, {mimetype: 'video/mp4', quoted: mek})
+     await limitAdd(sender)
+break
+case 'igphoto':
+     if (isBanned) return reply(nad.baned())
+	 if (!isRegistered) return reply(nad.noregis())
+	 if (isLimit(sender)) return reply(nad.limitend(pusname)) 
+     reply(nad.wait())
+     asu = await fetchJson(`https://api.zeks.xyz/api/ig?url=${body.slice(9)}&apikey=apivinz`)
+     if (asu.error) return reply(asu.error)
+     igp = await getBuffer(asu.result[0].url)
+     baby.sendMessage(from, igp, image, {quoted: mek})
      await limitAdd(sender)
 break
 
@@ -1826,16 +2028,6 @@ break
 						baby.sendMessage(from, nikko, image, {quoted: mek, caption: 'Jangan Comly >_<'})
 					await limitAdd(sender)
 					break					
-                case 'nekonime':
-                if (isBanned) return reply(nad.baned())
-				if (!isRegistered) return reply(nad.noregis())
-				if (isLimit(sender)) return reply(nad.limitend(pusname))
-					reply(nad.wait())
-					anu = await fetchJson(`https://st4rz.herokuapp.com/api/nekonime`)
-					vvibu = await getBuffer(anu.result)
-					baby.sendMessage(from, vvibu, image, {quoted: mek, caption: 'VVibu AbiZzzz :v'})
-					await limitAdd(sender)
-				break
                 case 'kpop':
                   if (isBanned) return reply(nad.baned())
 				if (!isRegistered) return reply(nad.noregis())
@@ -1847,25 +2039,23 @@ break
                                         randomkpop = `*PLASTIQUE*`
                                         baby.sendMessage(from, buffer, image, {quoted: mek, caption: randomkpop})
                                         await limitAdd(sender)
-                                        break
-                case 'husbu':
-                  if (isBanned) return reply(nad.baned())
-				if (!isRegistered) return reply(nad.noregis())
-				if (isLimit(sender)) return reply(nad.limitend(pusname))
-                   if (!isGroup) return reply(nad.groupo())
-                   if (!isNsfw) return reply(nad.nsfwoff())
-						res = await fetchJson(`https://tobz-api.herokuapp.com/api/husbu?apikey=BotWeA`)
-						buffer = await getBuffer(res.image)
-						baby.sendMessage(from, buffer, image, {quoted: mek, caption: '>_<'})
-					await limitAdd(sender)
-					break									
+                                        break								
 				case 'wibu':
                 if (isBanned) return reply(nad.baned())
 				if (!isRegistered) return reply(nad.noregis())
 				if (isLimit(sender)) return reply(nad.limitend(pusname))
-				data = await fetchJson(`https://st4rz.herokuapp.com/api/waifu`)
-				buffer = await getBuffer(data.image)
+				data = await fetchJson(`https://api.zeks.xyz/api/nekonime?apikey=apivinz`)
+				buffer = await getBuffer(data.result.result)
 				baby.sendMessage(from, buffer, image, {quoted: mek, caption: 'VVibu AbiZzz :v'})
+				await limitAdd(sender)
+				break
+				case 'loli':
+                if (isBanned) return reply(nad.baned())
+				if (!isRegistered) return reply(nad.noregis())
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
+				data = await fetchJson(`https://api.shizukaa.xyz/api/randomloli?apikey=itsmeiky633`)
+				buper = await getBuffer(data.result)
+				baby.sendMessage(from, buper, image, {quoted: mek, caption: 'Cintai Loli Mu >_<'})
 				await limitAdd(sender)
 				break
                 case 'darkjokes':
@@ -1905,9 +2095,9 @@ break
 				if (!isPrem) return reply(nad.premium())
 			data = await fetchJson(`https://tobz-api.herokuapp.com/api/moddroid?q=${body.slice(10)}&apikey=BotWeA`)
 			hepi = data.result[0] 
-			teks = `*➸ Nama*: ${data.result[0].title}\n*➸ publisher*: ${hepi.publisher}\n*➸ mod info:* ${hepi.mod_info}\n*➸ size*: ${hepi.size}\n*➸ latest version*: ${hepi.latest_version}\n*➸ genre*: ${hepi.genre}\n*➸ link:* ${hepi.link}\n*➸ download*: ${hepi.download}`
+			teos = `*➸ Nama*: ${data.result[0].title}\n*➸ publisher*: ${hepi.publisher}\n*➸ mod info:* ${hepi.mod_info}\n*➸ size*: ${hepi.size}\n*➸ latest version*: ${hepi.latest_version}\n*➸ genre*: ${hepi.genre}\n*➸ link:* ${hepi.link}\n*➸ download*: ${hepi.download}`
 			buffer = await getBuffer(hepi.image)
-			baby.sendMessage(from, buffer, image, {quoted: mek, caption: `${teks}`})
+			baby.sendMessage(from, buffer, image, {quoted: mek, caption: `${teos}`})
 			break
 			case 'happymod':
                   if (isBanned) return reply(nad.baned())
@@ -1915,9 +2105,9 @@ break
 				if (!isPrem) return reply(nad.premium())
 			data = await fetchJson(`https://tobz-api.herokuapp.com/api/happymod?q=${body.slice(10)}&apikey=BotWeA`)
 			hupo = data.result[0] 
-			teks = `*➸ Nama*: ${data.result[0].title}\n*➸ version*: ${hupo.version}\n*➸ size:* ${hupo.size}\n*➸ root*: ${hupo.root}\n*➸ purchase*: ${hupo.price}\n*➸ link*: ${hupo.link}\n*➸ download*: ${hupo.download}`
+			tebs = `*➸ Nama*: ${data.result[0].title}\n*➸ version*: ${hupo.version}\n*➸ size:* ${hupo.size}\n*➸ root*: ${hupo.root}\n*➸ purchase*: ${hupo.price}\n*➸ link*: ${hupo.link}\n*➸ download*: ${hupo.download}`
 			buffer = await getBuffer(hupo.image)
-			baby.sendMessage(from, buffer, image, {quoted: mek, caption: `${teks}`})
+			baby.sendMessage(from, buffer, image, {quoted: mek, caption: `${tebs}`})
 			break
 					case 'pinterest':
                   if (isBanned) return reply(nad.baned())
@@ -1932,30 +2122,17 @@ break
 					baby.sendMessage(from, pok, image, { quoted: mek, caption: `*⟪ PINTEREST ⟫*`})
 					await limitAdd(sender)
 					break 
-                case 'beritahoax':
-                  if (isBanned) return reply(nad.baned())
-				if (!isRegistered) return reply(nad.noregis())
-				if (isLimit(sender)) return reply(nad.limitend(pusname))
-                    baby.updatePresence(from, Presence.composing) 
-					data = await fetchJson(`https://docs-jojo.herokuapp.com/api/infohoax`, {method: 'get'})
-					teks = '♡───────────♡\n'
-					for (let i of data.result) {
-						teks += `*➸ Gambar* : ${i.image}\n*➸ Title* : ${i.title}\n*➸ link* : ${i.link}\n*➸ tag* : ${i.tag}\n♡───────────♡\n`
-					}
-					reply(teks.trim())
-					await limitAdd(sender)
-					break
 					case 'brainly':
 	                  if (isBanned) return reply(nad.baned())
 				if (!isRegistered) return reply(nad.noregis())
 				if (isLimit(sender)) return reply(nad.limitend(pusname))
                     brien = body.slice(9)
 					brainly(`${brien}`).then(res => {
-					teks = '♡───────────♡\n'
+					teds = '♡───────────♡\n'
 					for (let Y of res.data) {
-						teks += `\n*「 BRAINLY 」*\n\n*➸ Pertanyaan:* ${Y.pertanyaan}\n\n*➸ Jawaban:* ${Y.jawaban[0].text}\n♡───────────♡\n`
+						teds += `\n*「 BRAINLY 」*\n\n*➸ Pertanyaan:* ${Y.pertanyaan}\n\n*➸ Jawaban:* ${Y.jawaban[0].text}\n♡───────────♡\n`
 					}
-					baby.sendMessage(from, teks, text, {quoted: mek, detectLinks: false})
+					baby.sendMessage(from, teds, text, {quoted: mek, detectLinks: false})
                         console.log(res)
                     })
 					await limitAdd(sender)
@@ -1963,9 +2140,9 @@ break
 				case 'info':
 					me = baby.user
 					uptime = process.uptime()
-					teks = `*➸ Nama bot* : ${me.name}\n*➸ OWNER* : ${ownerName}\n*➸ AUTHOR* : 𝗥𝗮𝗺𝗹𝗮𝗻 𝗜𝗗\n*➸ Nomor Bot* : @${me.jid.split('@')[0]}\n*➸ Prefix* : ${prefix}\n*➸ Total Block Contact* : ${blocked.length}\n*➸ The bot is active on* : ${kyun(uptime)}`
+					const tecs = `*➸ Nama bot* : ${me.name}\n*➸ OWNER* : ${ownerName}\n*➸ AUTHOR* : 𝗥𝗮𝗺𝗹𝗮𝗻 𝗜𝗗\n*➸ Nomor Bot* : @${me.jid.split('@')[0]}\n*➸ Prefix* : ${prefix}\n*➸ Total Block Contact* : ${blocked.length}\n*➸ The bot is active on* : ${kyun(uptime)}`
 					buffer = await getBuffer(me.imgUrl)
-					baby.sendMessage(from, buffer, image, {caption: teks, contextInfo:{mentionedJid: [me.jid]}})
+					baby.sendMessage(from, buffer, image, {caption: tecs, contextInfo:{mentionedJid: [me.jid]}})
 					break
             case 'admin':
             case 'owner':
@@ -1973,28 +2150,66 @@ break
                   baby.sendMessage(from, {displayname: "Jeff", vcard: vcard}, MessageType.contact, { quoted: mek})
                   baby.sendMessage(from, 'Tuh Nomor Pacarku >_<, Ehh Ownerku mksdnya:v',MessageType.text, { quoted: mek} )
 					break
-case 'hartatahta':
-if (isBanned) return reply(nad.baned())
-if (!isRegistered) return reply(nad.noregis())
-if (isLimit(sender)) return reply(nad.limitend(pusname))
-if (args.length < 1) return reply(`「❗」Contoh : ${prefix}hartatahta Ramlan`)
-har = body.slice(12)
-reply('「❗」Hirti Tihti Tai Anjg :v')
-buffer = await getBuffer(`https://api.zeks.xyz/api/hartatahta?text=${har}&apikey=apivinz`)
-baby.sendMessage(from, buffer, image, {quoted: mek})
-await limitAdd(sender)
-break
-case 'cloudtext':
-                  if (isBanned) return reply(nad.baned())
+           case 'hartatahta':
+           if (isBanned) return reply(nad.baned())
+           if (!isRegistered) return reply(nad.noregis())
+           if (isLimit(sender)) return reply(nad.limitend(pusname))
+           if (args.length < 1) return reply(`Teksnya mana kak?\nContoh : ${prefix}hartatahta BOTWA`)
+           tahta = body.slice(12)
+           reply('「❗」Hirti Tihti Tai Anjg :v')
+           bupfer = await getBuffer(`https://api.zeks.xyz/api/hartatahta?text=${tahta}&apikey=apivinz`)
+           baby.sendMessage(from, bupfer, image, {quoted: mek})
+		    await limitAdd(sender)
+           break
+           case 'artinama':
+           if (isBanned) return reply(nad.baned())
+           if (!isRegistered) return reply(nad.noregis())
+           if (isLimit(sender)) return reply(nad.limitend(pusname))
+           if (args.length < 1) return reply(`Teksnya mana kak?\nContoh : ${prefix}artinama Ramlan`)
+           umm = await fetchJson(`https://api.zeks.xyz/api/artinama?apikey=apivinz&nama=${body.slice(10)}`)
+           reply(umm.result)
+           await limitAdd(sender)
+           break
+           case 'artijodoh':
+           if (isBanned) return reply(nad.baned())
+           if (!isRegistered) return reply(nad.noregis())
+           if (isLimit(sender)) return reply(nad.limitend(pusname))
+           if (args.length < 1) return reply(`Teksnya mana kak?\nContoh : ${prefix}artijodoh Ramlan & Nadia`)
+           	    var gh = body.slice(11)
+				var jod = gh.split("&")[0];
+				var oh = gh.split("&")[1];
+           jodoh = await fetchJson(`https://api.zeks.xyz/api/primbonjodoh?apikey=apivinz&nama1=${jod}&nama2=${oh}`)
+           hasilya = '「 ARTI JODOH 」\nNama : '+jodoh.result.nama1+'\nPasangan :'+jodoh.result.nama2+'\n\nPositif : '+jodoh.result.positif+'\nNegatif : '+jodoh.result.negatif
+           arti = await getBuffer(jodoh.result.thumb)
+           baby.sendMessage(from, arti, image, {quoted: mek, caption: hasilya})
+           await limitAdd(sender)
+           break
+            case 'trigered':
+           if (isBanned) return reply(nad.baned())
 				if (!isRegistered) return reply(nad.noregis())
-				if (!isPrem) return reply(nad.premium())
-if (args.length < 1) return reply(`「❗」Contoh : ${prefix}cloudtext Ramlan`)
-cloud = body.slice(11)
-reply('「❗」Bentar Bro Gw Terbang dumlu yakan')
-buffer = await getBuffer(`https://api.xteam.xyz/textpro/cloudtext?text=${cloud}&APIKEY=${XteamKey}`)
-baby.sendMessage(from, buffer, image, {quoted: mek})
-break
-
+				if (isLimit(sender)) return reply(nad.limitend(pusname))
+           await limitAdd(sender)
+           var imgbb = require('imgbb-uploader')
+           if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
+           ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
+           reply(nad.wait())
+           owgi = await baby.downloadAndSaveMediaMessage(ger)
+           anu = await imgbb("9558de4c8e793fcb097bc82cc1c98b23", owgi)
+           tezs = `${anu.display_url}`
+           ranp = getRandom('.gif')
+           rano = getRandom('.webp')
+           anu1 = `https://some-random-api.ml/canvas/triggered?avatar=${tezs}`
+           exec(`wget ${anu1} -O ${ranp} && ffmpeg -i ${ranp} -vcodec libwebp -filter:v fps=fps=20 -lossless 1 -loop 0 -preset default -an -vsync 0 -s 512:512 ${rano}`, (err) => {
+           fs.unlinkSync(ranp)
+           if (err) return reply('GAGAL UM')
+           nobg = fs.readFileSync(rano)
+           baby.sendMessage(from, nobg, sticker, {quoted: mek})
+           fs.unlinkSync(rano)
+           })
+           } else {
+           reply('Pake foto kak')
+           }
+           break
 /*                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
 ]=====> OWNER MENU <=====[
 */
@@ -2132,7 +2347,7 @@ break
 				case 'resetlimit':
 				if (!isOwner) return reply(nad.ownerb())
 				var ngonsol = []
-				rest = _limit.indexOf([0])
+				rest = _limit.indexOf()
 				_limit.splice(rest)
 				fs.writeFileSync('./database/user/limit.json', JSON.stringify(ngonsol))
 				reply(`LIMIT BERHASIL DI RESET BOS`)
@@ -2235,18 +2450,28 @@ baby.sendMessage(from, puluh, MessageType.audio, {quoted: mek, mimetype: 'audio/
 await limitAdd(sender)
 break														
 /*
+]=====> Ingfo <=====[
+Author : Ramlan
+Recode by : Nama lu
 ]=====> TQTO <=====[
-> RAMLAN ID
-> REVOER ID
-> ARIS ID
-> NADIA CANS
-> NAZWA
-> VHTEAR
-> TOBZ
-> XTEAM
-> MHANKBARBAR
-> All Creator Bot WhatsApp
-*/				
+Ramlan ID
+MrG3P5
+Nafiz
+Revoer ID
+Itsmeiky
+Vinz
+XTEAM
+Vhtear
+Tobz
+All BOT WE A
+All Creator Bot WhatsApp
+Credits : BABY BOT
+=======================
+Note : Ingat bro menghapus Author, ThanksTo, Credits. Itu sama aja kau Nyampah doang :v
+*/			                     default:
+                  if (budy == 'cekprefix') {
+                  reply(`*${botName} MENGGUNAKAN PREFIX :「 ${prefix} 」*`)
+                  }
 			if (isGroup && !isCmd && isSimi && budy != undefined) {
 						console.log(budy)
 						muehe = await simih(budy)
