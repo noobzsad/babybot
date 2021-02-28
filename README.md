@@ -51,11 +51,14 @@ Script ini di modifikasi sama saya sendiri Ramlan.
 ```bash
 > kalo lu belum punya apk termux, download di playstore
 > masuk ke apk termux lalu ketik dibawah ini!
+> pkg update && pkg upgrade
+> pkg install git
+> pkg install bash
 > git clone https://github.com/Ramlan666/babybot
 > cd babybot
 > bash install.sh
 > node index.js
-> Tinggal scan kode qr yeee...done
+> SCAN DAH BRO MHEHE EZ KAN:V
 ```
 
 
