@@ -27,8 +27,12 @@ Mendownload lagu dari youtube bisa menggunakan text atau link
 Mendownload video dari youtube, gunakan link ya kak
 ➸ *${prefix}tiktod*
 Mendownload video tiktok, gunakan link kak
+➸ *${prefix}igphoto*
+Mendownload photo dari instagram, gunakan link photo kak
+➸ *${prefix}igvideo*
+Mendownload video dari instagram, gunakan link video kak
 ➸ *${prefix}hartatahta*
-Membuat lomgo, contoh : ${prefix}hartatahta Nadia
+Membuat lomgo, contoh : ${prefix}hartatahta BOTWA
 ➸ *${prefix}pornhub*
 Membuat logo, contoh : ${prefix}pornhub Ramlan & Hub
 Note : untuk logo maker / image maker jika undefined berarti harus memakai &
