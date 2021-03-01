@@ -462,13 +462,14 @@ baby.on('group-participants-update', async (anu) => {
           	let found = false
                     for (let lmt of _limit) {
                         if (lmt.id === sender) {
+				let limitCounts = limitawal - lmt.limit
                             if (limitCounts <= 0) return baby.sendMessage(from,`Limit anda sudah habis\n\n_Note : limit bisa di dapatkan dengan cara ${prefix}buylimit dan naik level_`, text,{ quoted: mek})
                             baby.sendMessage(from, nad.limitcount(isPrem, limitCounts), text, { quoted : mek})
                             found = true
                         }
                     }
                     if (found === false) {
-                        let obj = { id: sender, limit: 0 }
+                        let obj = { id: sender, limit: 1 }
                         _limit.push(obj)
                         fs.writeFileSync('./database/user/limit.json', JSON.stringify(_limit))
                         baby.sendMessage(from, nad.limitcount(isPrem, limitCounts), text, { quoted : mek})
